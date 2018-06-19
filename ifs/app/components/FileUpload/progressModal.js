@@ -1,3 +1,22 @@
+var fList = [];
+var theForm = new FormData($('#uploadForm')[0]);
+
+function convertList(list) {
+    var newList = [];
+    for (var i = 0; i < list.length; i++) {
+        var newObject  = {
+           'lastModified'     : list[i].lastModified,
+           'lastModifiedDate' : list[i].lastModifiedDate,
+           'originalname'     : list[i].name,
+           'filename'         : list[i].name,
+           'size'             : list[i].size,
+           'type'             : list[i].type
+        };
+        newList.push(newObject);
+    }
+    return JSON.stringify(newList);
+}
+
 // Uploads the form data in an ajax request.
 $(function() {
     $("#uploadForm").submit(function(event) {      
@@ -10,6 +29,9 @@ $(function() {
     $("#evaluate").click(function(event) {   
         // Prevent submission from happening.
         event.preventDefault();
+
+        console.log('theForm:\n');
+        console.log(theForm);
 
         //If there are no files uploaded, show an error message and exit
         let files = document.getElementById('submissionInput').files;
@@ -54,8 +76,12 @@ $(function() {
         var modal = UIkit.modal("#processingModal");
         modal.show();
 
-
         var uploadProgressBar = $('#progressbar')[0];
+
+        var form = new FormData($('#uploadForm')[0]);
+        console.log(fList[0]);
+        console.log(JSON.stringify(convertList(fList)));
+        form.append('fList', convertList(fList));
         
         // Create an AJAX request with all the upload form data
         // available. Upon completion feedback button is available 
@@ -64,7 +90,7 @@ $(function() {
             type: "POST",
             url:'/tool_upload',
             multiple: true,
-            data: new FormData($('#uploadForm')[0]),
+            data: theForm,
             processData: false,
             contentType: false,
             xhr: function() {
@@ -134,10 +160,57 @@ $(function() {
                             </strong>";
         fileList.appendChild(title);
 
+        var form = new FormData();
+        
+
         for (var i = 0; i < files.length; i++) {
+            theForm.append(files[i].name, files[i]);
+            fList.push(files[i]);
             let li = document.createElement("li");
             li.appendChild(document.createTextNode(files[i].name));
             fileList.appendChild(li);
         }
+
+        console.log(form);
+
+        $.ajax({ 
+            type: "POST",
+            url:'/file_upload',
+            multiple: true,
+            data: form,
+            processData: false,
+            contentType: false,
+            xhr: function() {
+                var xhr = $.ajaxSettings.xhr();
+                xhr.onprogress = function (e) {
+                    if(e.lengthComputable) {
+                    }
+                };
+                xhr.upload.onloadstart = function(e) {
+                    /*
+                    uploadProgressBar.removeAttribute('hidden');
+                    uploadProgressBar.max =  e.total;
+                    uploadProgressBar.value =  e.loaded;
+                    */
+                };
+                xhr.upload.onprogress = function(e) {
+                    /*
+                    if(e.lengthComputable) {
+                        uploadProgressBar.max =  e.total;
+                        uploadProgressBar.value =  e.loaded;
+                    }
+                    */
+                };
+                xhr.upload.onload = function(e) {
+                    /*
+                    uploadProgressBar.max =  e.total;
+                    uploadProgressBar.value =  e.loaded;
+                    */
+                };
+                return xhr;
+            }
+        });
+
+        console.log(fList);
     });
 });

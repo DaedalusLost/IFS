@@ -8,7 +8,7 @@ const dbcfg = require(__configs + 'databaseConfig');
 const Errors = require(__components + "Errors/errors");
 const Logger = require(__configs + "loggingConfig");
 
-const SurveyPreferences = require(__components + "Survey/models/SurveyPreferences");
+const SurveyPreferences = require(__components + "Survey/models/surveyPreferences");
 const Constants = require(__components + "Constants/programConstants");
 const Survey = require(__components + "Survey/models/Survey");
 const Question = require(__components + "Survey/models/Question");

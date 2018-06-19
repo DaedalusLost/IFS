@@ -195,6 +195,9 @@ module.exports = function (app, iosocket) {
 
     app.post('/tool_upload', upload.any(), function(req,res,next) {
 
+        console.log(req);
+        res.end();
+
         // saves the tools that were selected
         var user = eventDB.eventID(req);
         saveToolSelectionPreferences(req.user.id, req.session.toolSelect, req.body);
@@ -294,5 +297,9 @@ module.exports = function (app, iosocket) {
                 manager.runJob();
             });
         });
-    })
+    });
+
+    app.post('/file_upload', upload.any(), function(req,res,next) {
+        console.log(req.files);
+    });
 }

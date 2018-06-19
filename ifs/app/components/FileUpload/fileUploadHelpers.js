@@ -125,7 +125,13 @@ module.exports = {
     */
     handleFileTypes: function(req, res) {
         // Get files names to be inserted
-        var uploadedFiles = this.getFileNames(req.files);
+        let fList = JSON.parse(req.body.fList);
+
+        for (var i = 0; i < fList.length; i++) {
+            fList[i].destination = req.files[0].destination;
+        }
+
+        var uploadedFiles = this.getFileNames(fList);
 
         if (!uploadedFiles || uploadedFiles.length == 0) {
             var e = Errors.cLogErr("Unable to process uploaded file(s). Only Office, PDF, and text documents are accepted.");
