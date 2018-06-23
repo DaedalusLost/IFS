@@ -1,20 +1,26 @@
 div
     h2 File Upload
     hr
-div
-    p.uk-text-muted#filePlaceholder Please select files to upload
-    div.uk-background-muted#fileListDiv
-        ul.uk-list.uk-list-divider.uk-padding-small#fileList
-    div(uk-form-custom).uk-width-1-1
-        input(id="submissionInput" type="file" name="file" multiple required)
-        div.upload-panel.uk-placeholder.uk-text-center
-            span(uk-icon="icon: push; ratio: 2").uk-align-center.uk-display-block
-            span.uk-text-center
-                | Drag and drop files here or 
-                span.uk-link
-                    | select one or more 
-                    | to upload
-        input(type="hidden" name="time"  id="time" value=Date.now())
+div(ng-controller="fileCtrl")
+    div#selectedFiles
+        p(ng-if="fl.length == 0").uk-text-muted Please select files to upload
+        div(ng-if="fl.length > 0").uk-background-muted#fileListDiv
+            ul.uk-list.uk-list-divider.uk-padding-small#fileList
+                li
+                    strong The following files will be uploaded and evaluated:
+                li(ng-repeat="file in fl") {{file}} 
+                    button(uk-icon="close" ng-click="remove(this)").uk-float-right
+    div#fileInputs    
+        div(uk-form-custom).uk-width-1-1
+            input(id="submissionInput" type="file" name="file" multiple)
+            div.upload-panel.uk-placeholder.uk-text-center
+                span(uk-icon="icon: push; ratio: 2").uk-align-center.uk-display-block
+                span.uk-text-center
+                    | Drag and drop files here or 
+                    span.uk-link
+                        | select one or more 
+                        | to upload
+            input(type="hidden" name="time"  id="time" value=Date.now())
 
     div(id="processingModal" uk-modal="center: true; bg-close: false; esc-close: false;")
         div(class="uk-width-1-1 uk-width-2-3@l").uk-modal-dialog

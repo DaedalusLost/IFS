@@ -56,9 +56,6 @@ module.exports = function (app, iosocket) {
         var options =  _.pickBy(formData, function(value,key){
             return !(_.startsWith(key,'tool-') /*|| _.startsWith(key,'enabled-')*/)
         });
-
-        console.log("data: " + JSON.stringify(options));
-
         tracker.trackEvent( iosocket, eventDB.submissionEvent(req.user.sessionId, req.user.id, "info-options", options));
     }
 
@@ -194,17 +191,17 @@ module.exports = function (app, iosocket) {
     }
 
     app.post('/tool_upload', upload.any(), function(req,res,next) {
-
-        console.log(req);
-        res.end();
+        fs.writeFile("users/1/text.c", "Hey there!", function(err) {
+            if(err) {
+                return console.log(err);
+            }
+        }); 
 
         // saves the tools that were selected
         var user = eventDB.eventID(req);
         saveToolSelectionPreferences(req.user.id, req.session.toolSelect, req.body);
 
         submissionEvent.addSubmission( user, function(subErr, succSubmission) {
-
-            
 
             //obtain last submission from the requesting user
             var submissionRequest = submissionEvent.getLastSubmissionId(user.userId, user.sessoinId);
@@ -297,9 +294,5 @@ module.exports = function (app, iosocket) {
                 manager.runJob();
             });
         });
-    });
-
-    app.post('/file_upload', upload.any(), function(req,res,next) {
-        console.log(req.files);
     });
 }

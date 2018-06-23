@@ -124,14 +124,23 @@ module.exports = {
         Note: You can/should only handle the fileInfo once.
     */
     handleFileTypes: function(req, res) {
-        // Get files names to be inserted
-        let fList = JSON.parse(req.body.fList);
+        // Get all files names to be inserted
+        var tempVar = this.getFileNames(req.files);
+        
+        //Fix file list to only include user specified values
+        var fileList = JSON.parse(req.body.fileList);
+        var uploadedFiles = [];
 
-        for (var i = 0; i < fList.length; i++) {
-            fList[i].destination = req.files[0].destination;
+        for (var i = 0; i < tempVar.length; i++) {
+            if (fileList.indexOf(tempVar[i].originalname) > -1) {
+                var flag = true;
+                for (var j = 0; j < uploadedFiles.length; j++) 
+                    if (tempVar[i].originalname == uploadedFiles[j].originalname)
+                        flag = false
+
+                if (flag) uploadedFiles.push(tempVar[i]);
+            }
         }
-
-        var uploadedFiles = this.getFileNames(fList);
 
         if (!uploadedFiles || uploadedFiles.length == 0) {
             var e = Errors.cLogErr("Unable to process uploaded file(s). Only Office, PDF, and text documents are accepted.");
@@ -140,6 +149,8 @@ module.exports = {
             }
             return e;
         }
+
+        console.log(uploadedFiles);
 
         var toolType = req.session.toolSelect;
         if (toolType == "Programming") {
