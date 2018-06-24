@@ -55,7 +55,7 @@ _.forEach( toolTypes, function ( toolType ){
         if( err )
         {
            console.log("Error: Retrieving file directory structure.");
-           return; 
+           return;
         }
 
         if( !stats )
@@ -119,7 +119,7 @@ _.forEach( toolTypes, function ( toolType ){
                     // Apply each of the options, so far only select is implemented checkbox..etc
                     // might be useful too.
                     _.forEach( options, function( option ){
-                        // For each options that has a value try each 
+                        // For each options that has a value try each
                         //console.log("Tool has options ", tool);
                         if( option.type == "select")
                         {
@@ -157,7 +157,7 @@ _.forEach( toolTypes, function ( toolType ){
                     callback(true, null);
                 }
                 else
-                { 
+                {
                     console.log("Successful: ", cmdPath );
                     callback(null, !err);
                 }
