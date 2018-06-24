@@ -2,8 +2,10 @@
 if option.type == 'checkbox'
     div
         span #{option.displayName}
-        input(type="checkbox" name=option.name id=option.name ng-checked=option.prefValue).uk-checkbox.uk-float-right
-
+        if option.prefValue
+            input(type="checkbox" name=option.name id=option.name checked).uk-checkbox.uk-float-right
+        else
+            input(type="checkbox" name=option.name id=option.name).uk-checkbox.uk-float-right
 // text input
 if option.type == 'text'
     div

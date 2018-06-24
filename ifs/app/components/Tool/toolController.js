@@ -10,3 +10,5 @@ app.controller( "toolCtrl", function($scope, $http) {
         $scope.toolList = res.data;
     });
 });
+
+//This file is unused, as all angular from the tool section of the feedback page has been removed
