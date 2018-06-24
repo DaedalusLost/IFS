@@ -191,12 +191,6 @@ module.exports = function (app, iosocket) {
     }
 
     app.post('/tool_upload', upload.any(), function(req,res,next) {
-        fs.writeFile("users/1/text.c", "Hey there!", function(err) {
-            if(err) {
-                return console.log(err);
-            }
-        }); 
-
         // saves the tools that were selected
         var user = eventDB.eventID(req);
         saveToolSelectionPreferences(req.user.id, req.session.toolSelect, req.body);
