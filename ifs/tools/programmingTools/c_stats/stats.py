@@ -34,7 +34,8 @@ def decorateData(allResults):
                             + '"name": "' + result[3] + '"'
                             + '},')
 
-    json_string = json_string[:-1]
+    if len(allResults) > 0:
+        json_string = json_string[:-1]
     json_string += ']}'
 
     json_string = json.loads(json_string)
