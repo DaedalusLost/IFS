@@ -88,24 +88,29 @@ module.exports = function (app, iosocket) {
       SurveyBuilder.getPulseSurvey(req.session.toolSelect.toLowerCase(), userId, (survey) => {
 
         fs.readFile('./config/preferencesList.json', 'utf-8', function(err, data) {
-          var toolNames = JSON.parse(data).preferences.options[3].values;
-
-          fs.readFile(req.session.toolFile, 'utf-8', function (err, toolData) {
-            preferencesDB.getStudentPreferencesByToolType(req.user.id, req.session.toolSelect, function (err, toolPreferences) {
-              var jsonObj = JSON.parse(toolData);
-              tools = jsonObj['tools'];
-
-              if (toolPreferences)
-                updateJsonWithDbValues(toolPreferences, tools);  
-
-              res.render(viewPath + "tool", {
-                "tools": tools,
-                "toolNames": toolNames,
-                "title": req.session.toolSelect,
-                "surveyQuestions": survey
+          if (data && !err) {
+            var toolNames = JSON.parse(data).preferences.options[3].values;
+            fs.readFile(req.session.toolFile, 'utf-8', function (err, toolData) {
+                preferencesDB.getStudentPreferencesByToolType(req.user.id, req.session.toolSelect, function (err, toolPreferences) {
+                  var jsonObj = JSON.parse(toolData);
+                  tools = jsonObj['tools'];
+    
+                  if (toolPreferences && !err) {
+                    updateJsonWithDbValues(toolPreferences, tools);  
+                  }
+    
+                  res.render(viewPath + "tool", {
+                    "tools": tools,
+                    "toolNames": toolNames,
+                    "title": req.session.toolSelect,
+                    "surveyQuestions": survey
+                  });
+                });
               });
-            });
-          });
+          }
+          else{
+              console.log(err);
+          }
         }); 
       });
     });

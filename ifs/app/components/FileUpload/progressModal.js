@@ -16,9 +16,11 @@ function inputChange() {
     let files = input.files;
 
     //Make sure that file names are unique
-    for (let i = 0; i < files.length; i++)
-        if (fList.indexOf(files[i].name) == -1)
+    for (let i = 0; i < files.length; i++) {
+        if (fList.indexOf(files[i].name) == -1) {
             fList.push(files[i].name);
+        }
+    }
 
     //Remove the old input from commission
     input.removeAttribute('id');

@@ -169,6 +169,7 @@ module.exports = {
             } else if (_.has(res, 'res')) {
                 // Get the directory information
                 fileInfo = res.res;
+                console.log(fileInfo);
             } else {
                 uploadedFiles = this.createProgrammingProject(uploadedFiles);
             }
