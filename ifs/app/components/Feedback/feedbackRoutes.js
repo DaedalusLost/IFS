@@ -63,7 +63,16 @@ module.exports = function( app ) {
 
                             var visualTools = Feedback.setupVisualFeedback(visualTools);
                             results = _.assign(result,visualTools);
-                            callback(results);
+
+                            var q = `SELECT toolValue FROM preferences WHERE
+                                     userId=${req.user.id} and toolName="pref-toolSelect"`;
+                            db.query(q, function(err, toolPreference){
+                                if (!err && toolPreference){
+                                    var toolType = toolPreference[0].toolValue;
+                                    results.toolType = toolType.toLowerCase();
+                                    callback(results);
+                                }
+                            });
                         });
                     });
                 });
@@ -80,8 +89,10 @@ module.exports = function( app ) {
 
     app.get('/feedback', function(req, res) {
         var opt = {};
+        console.log('should retrieve data here');
+
         showFeedback(req,res,opt, function(results) {
-            res.render( viewPath + "feedback", results );
+            res.render( viewPath + "feedback", results);
         });
     });
 
