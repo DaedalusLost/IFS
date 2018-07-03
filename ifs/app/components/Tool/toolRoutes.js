@@ -86,22 +86,42 @@ module.exports = function (app, iosocket) {
 
     TipManager.selectTip(req, res, userId, () => {
       SurveyBuilder.getPulseSurvey(req.session.toolSelect.toLowerCase(), userId, (survey) => {
-        res.render(viewPath + "tool", {
-          "title": req.session.toolSelect + ' Tool Screen',
-          "surveyQuestions": survey
-        });
+
+        fs.readFile('./config/preferencesList.json', 'utf-8', function(err, data) {
+          if (data && !err) {
+            var toolNames = JSON.parse(data).preferences.options[3].values;
+            fs.readFile(req.session.toolFile, 'utf-8', function (err, toolData) {
+                preferencesDB.getStudentPreferencesByToolType(req.user.id, req.session.toolSelect, function (err, toolPreferences) {
+                  var jsonObj = JSON.parse(toolData);
+                  tools = jsonObj['tools'];
+    
+                  if (toolPreferences && !err) {
+                    updateJsonWithDbValues(toolPreferences, tools);  
+                  }
+    
+                  res.render(viewPath + "tool", {
+                    "tools": tools,
+                    "toolNames": toolNames,
+                    "title": req.session.toolSelect,
+                    "surveyQuestions": survey
+                  });
+                });
+              });
+          }
+          else{
+              console.log(err);
+          }
+        }); 
       });
     });
   });
-
+  
   app.post('/tool/preferences', function (req, res, next) {
     let pref = req.body.tool;
 
     preferencesDB.setStudentPreferences(req.user.id, "Option", "pref-toolSelect", pref, function (err, result) {
       tracker.trackEvent(iosocket, event.changeEvent(req.user.sessionId, req.user.id, "pref-toolSelect", pref));
       defaultTool.setupDefaultTool(req, pref);
-
-      console.log(pref);
 
       res.redirect(url.format({
         pathname: '/tool'

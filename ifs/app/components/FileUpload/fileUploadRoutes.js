@@ -207,14 +207,11 @@ module.exports = function (app, iosocket) {
     }
 
     app.post('/tool_upload', upload.any(), function(req,res,next) {
-
         // saves the tools that were selected
         var user = eventDB.eventID(req);
         saveToolSelectionPreferences(req.user.id, req.session.toolSelect, req.body);
 
         submissionEvent.addSubmission( user, function(subErr, succSubmission) {
-
-
 
             //obtain last submission from the requesting user
             var submissionRequest = submissionEvent.getLastSubmissionId(user.userId, user.sessoinId);
@@ -236,13 +233,6 @@ module.exports = function (app, iosocket) {
                 if( Errors.hasErr(uploadedFiles) ) {
                     var err = Errors.getErrMsg(uploadedFiles);
                     tracker.trackEvent( iosocket, eventDB.submissionEvent(user.sessionId, user.userId,"failed", err) ) ;
-
-                    if( req.files && uploadedFiles && uploadedFiles.length > 0 )
-                    {
-                        saveUploadErrorFiles( req.user.id, user.sessionId, uploadedFiles[0].destination, function(d,e) {
-                            Logger.log("Saving failed upload files for user:", req.user.id);
-                        });
-                    }
                     //req.flash('errorMessage', err );
                     res.status(500).send(JSON.stringify({"msg":err}));
                     return;
@@ -259,20 +249,17 @@ module.exports = function (app, iosocket) {
                 if(!tools || tools.length == 0)
                 {
                     var err = Errors.cErr();
-                    saveUploadErrorFiles( req.user.id, user.sessionId, uploadedFiles[0].destination, function(d,e) {
-                        Logger.log("Saving failed job request files for user:", req.user.id);
-                    });
                     tracker.trackEvent( iosocket, eventDB.submissionEvent(user.sessionId, user.userId, "failed", err) );
                     res.status(500).send(JSON.stringify({"msg":"Please select a tool to evaluate your work."}));
                     return;
                 }
 
-
+               
 
                 //Upload files names and job requests, jobRequests remains to ease testing and debugging.
                 var requestFile = Helpers.writeResults( tools, { 'filepath': uploadedFiles[0].filename, 'file': 'jobRequests.json'});
                 var filesFile = Helpers.writeResults( uploadedFiles, { 'filepath': uploadedFiles[0].filename, 'file': 'fileUploads.json'});
-                req.session.jobRequestFile = requestFile;
+                req.session.jobRequestFile = requestFile;   
                 req.session.uploadFilesFile = filesFile;
 
 
@@ -293,7 +280,7 @@ module.exports = function (app, iosocket) {
                     res.end();
 
                 }, function(err){
-                    //Logger.error("Failed to make jobs:", err );
+                    Logger.error("Failed to make jobs:", err );
 
                     // NOTE: Abusing XHR communication because I can't get the below code to communicate.
                     // Want to just sent error to XHR but nothing gets communicated. So added 'err':true
@@ -309,9 +296,6 @@ module.exports = function (app, iosocket) {
                 })
                 .catch( function(err){
                     tracker.trackEvent( iosocket, eventDB.submissionEvent(user.sessionId, user.userId, "toolError", {"msg":e}) );
-                    saveUploadErrorFiles( req.user.id, user.sessionId, uploadedFiles[0].destination, function(d,e) {
-                        Logger.log("Saving Tool Error upload files for user:", req.user.id);
-                    });
                     res.status(500).send({
                         error: e
                     });
@@ -320,5 +304,5 @@ module.exports = function (app, iosocket) {
                 manager.runJob();
             });
         });
-    })
+    });
 }
