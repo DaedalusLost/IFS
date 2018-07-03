@@ -10,6 +10,7 @@ app.controller( "dashboardCtrl", function($scope, $http) {
     $scope.toolType = null;
     $scope.skills = [];
     $scope.studentProfile = null;
+    $scope.question = {};
 
     /**
      * Selects the next active DIV for student focus.
@@ -54,6 +55,19 @@ app.controller( "dashboardCtrl", function($scope, $http) {
 
     $scope.hasFocusItem = function() {
         return $scope.assignmentSelect && $scope.courseSelect;
+    }
+
+    $scope.startSurvey = function() {
+        UIkit.modal('#questionnaireModal').show();
+        $scope.question = {
+            title: 'Question #1:',
+            fields: [
+                {type: 'radio', name: 'radioButtons', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]},
+                {type: 'checkbox', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]},
+                {type: 'select', data: 'selectField', label: 'Select', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]}
+            ]
+        };
+        $scope.getNextSelected();
     }
 
     $http.get('/dashboard/data').then( function(res) {

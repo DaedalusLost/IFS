@@ -20,7 +20,7 @@ div#studentFocus
                     div.uk-width-1-2
                         label(for="assignmentSelect").uk-padding-small Select Assignment:
                         select(ng-model="assignmentSelect" ng-options="a.assignmentName for a in ( assignments | filter:{courseId: courseSelect.courseId}) track by a.assignmentId").uk-select
-                button(type="button" ng-disabled="!hasFocusItem()" ng-click="getNextSelected( $event )" ).uk-button.uk-button-default.uk-align-center Set Focus
+                button(type="button" ng-disabled="!hasFocusItem()" ng-click="startSurvey()" ).uk-button.uk-button-default.uk-align-center Set Focus
 
     div(ng-show="activeStudentFocus==2")#studentSelectedFocus.uk-card.uk-card-default.uk-card-hover
         button(type="button" uk-close ng-click="resetSelectedFocus($event)").uk-modal-close-default
@@ -49,6 +49,20 @@ div#studentFocus
     div(ng-show="activeStudentFocus==3")#assignmentAccomplished.uk-card.uk-card-default.uk-card-hover
         button(type="button" uk-close ng-click="resetSelectedFocus($event)").uk-modal-close-default
         div.uk-card-header
-            h2.uk-card-title  Congrats, you've recently completed {{assignmentSelect.assignmentName}}
+            h2.uk-card-title Congrats, you've recently completed {{assignmentSelect.assignmentName}}
         div.uk-card-body
-            button(type="button" ng-click="resetSelectedFocus( $event )" ).uk-button.uk-button-default.uk-align-center  Set New Focus?
+            button(type="button" ng-click="resetSelectedFocus( $event )" ).uk-button.uk-button-default.uk-align-center Set New Focus?
+
+div(uk-modal)#questionnaireModal
+    div.uk-modal-dialog
+        button(type="button" uk-close).uk-modal-close-default
+        div.uk-modal-header
+            h2.uk-modal-title Suggested Activities Questionnaire
+        div.uk-modal-body#question
+            h4 {{question.title}}
+            form(class='uk-form')
+                div(ng-repeat="field in question.fields")
+                    ng-form
+                        include dashboardInput.pug
+        div.uk-modal-footer.uk-text-right
+            button(type="button").uk-button.uk-button-primary Finish
