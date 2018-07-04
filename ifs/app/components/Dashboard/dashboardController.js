@@ -1,3 +1,41 @@
+let q1 = {
+    title: 'Radio buttons example:',
+    fields: [
+        {type: 'radio', name: 'radioButtons', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]}
+    ],
+    isFirst: true
+};
+
+let q2 = {
+    title: 'Checkboxes example:',
+    fields: [
+        {type: 'checkbox', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]}
+    ]
+};
+
+let q3 = {
+    title: 'Multiple inputs example:',
+    fields: [
+        {type: 'select', data: 'selectField', label: 'Select', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]},
+        {type: 'text', label: 'Label', placeholder: 'Placeholder', id: 'textID'}
+    ],
+    isLast: true
+};
+
+//The above is dummy data that should be generated elsewhere during actual use
+
+//Dummy function for now, but should be used to grab the previous question from the server
+function getPrevious(q) {
+    if (q == q2) return q1;
+    if (q == q3) return q2;
+}
+
+//Dummy function for now, but should be used to grab the next question from the server
+function getNext(q) {
+    if (q == q1) return q2;
+    if (q == q2) return q3;
+}
+
 app.controller( "dashboardCtrl", function($scope, $http) {
     $scope.courses=[];
     $scope.assignments = [];
@@ -10,7 +48,12 @@ app.controller( "dashboardCtrl", function($scope, $http) {
     $scope.toolType = null;
     $scope.skills = [];
     $scope.studentProfile = null;
-    $scope.question = {};
+
+    $scope.question = q1;
+    $scope.showBack = false;
+    $scope.showNext = true;
+    $scope.showFinish = false;
+    $scope.finishedSurvey = false;
 
     /**
      * Selects the next active DIV for student focus.
@@ -57,17 +100,52 @@ app.controller( "dashboardCtrl", function($scope, $http) {
         return $scope.assignmentSelect && $scope.courseSelect;
     }
 
-    $scope.startSurvey = function() {
+    $scope.showSurvey = function() {
         UIkit.modal('#questionnaireModal').show();
-        $scope.question = {
-            title: 'Question #1:',
-            fields: [
-                {type: 'radio', name: 'radioButtons', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]},
-                {type: 'checkbox', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]},
-                {type: 'select', data: 'selectField', label: 'Select', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]}
-            ]
-        };
+    }
+
+    $scope.prevQuestion = function() {
+        $scope.question = getPrevious($scope.question);
+        $scope.toggleButtons();
+    }
+
+    $scope.nextQuestion = function() {
+        $scope.question = getNext($scope.question);
+        $scope.toggleButtons();
+    }
+
+    $scope.finishSurvey = function() {
+        UIkit.modal('#questionnaireModal').hide();
         $scope.getNextSelected();
+        $scope.finishedSurvey = true;
+    }
+
+    $scope.closeSurvey = function() {
+        if ($scope.activeStudentFocus != 2)
+            $scope.getNextSelected();
+    }
+
+    $scope.toggleButtons = function() {
+        if ($scope.question.isFirst) {
+            $scope.showBack = false;
+            $scope.showNext = true;
+            $scope.showFinish = false;
+        } else if ($scope.question.isLast) {
+            $scope.showBack = true;
+            $scope.showNext = false;
+            $scope.showFinish = true;
+        } else {
+            $scope.showBack = true;
+            $scope.showNext = true;
+            $scope.showFinish = false;
+        }
+    }
+
+    $scope.questionAnswered = function() {
+        for (var i in $scope.question.fields) {
+            var field = $scope.question.fields[i];
+            console.log($scope.question.fields[i]);
+        }
     }
 
     $http.get('/dashboard/data').then( function(res) {

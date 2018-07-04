@@ -20,13 +20,19 @@ div#studentFocus
                     div.uk-width-1-2
                         label(for="assignmentSelect").uk-padding-small Select Assignment:
                         select(ng-model="assignmentSelect" ng-options="a.assignmentName for a in ( assignments | filter:{courseId: courseSelect.courseId}) track by a.assignmentId").uk-select
-                button(type="button" ng-disabled="!hasFocusItem()" ng-click="startSurvey()" ).uk-button.uk-button-default.uk-align-center Set Focus
+                button(type="button" ng-disabled="!hasFocusItem()" ng-click="showSurvey()" ).uk-button.uk-button-default.uk-align-center Set Focus
 
     div(ng-show="activeStudentFocus==2")#studentSelectedFocus.uk-card.uk-card-default.uk-card-hover
         button(type="button" uk-close ng-click="resetSelectedFocus($event)").uk-modal-close-default
         div.uk-card-header
             h2.uk-card-title Current Focus:
         div.uk-card-body
+            div(uk-alert  ng-show="!finishedSurvey")
+                p
+                    | You have not complete the suggested activities survey. Please click 
+                    a(ng-click="showSurvey()") here
+                    |  to complete it.
+
             div.uk-clearfix
                 h3.uk-float-left Tasks for {{courseSelect.courseName}} {{assignmentSelect.assignmentName}}
                 a(href="#myModal" uk-icon="icon: info" uk-toggle="target: #myModal").uk-float-right.uk-icon-button
@@ -55,7 +61,7 @@ div#studentFocus
 
 div(uk-modal)#questionnaireModal
     div.uk-modal-dialog
-        button(type="button" uk-close).uk-modal-close-default
+        button(type="button" ng-click="closeSurvey()" uk-close).uk-modal-close-default
         div.uk-modal-header
             h2.uk-modal-title Suggested Activities Questionnaire
         div.uk-modal-body#question
@@ -65,4 +71,6 @@ div(uk-modal)#questionnaireModal
                     ng-form
                         include dashboardInput.pug
         div.uk-modal-footer.uk-text-right
-            button(type="button").uk-button.uk-button-primary Finish
+            button(ng-show="showBack" type="button" ng-click="prevQuestion()" style="margin-right: 10px").uk-button.uk-button-default Back
+            button(ng-show="showNext" type="button" ng-click="nextQuestion()").uk-button.uk-button-default Next
+            button(ng-show="showFinish" type="button" ng-click="finishSurvey()").uk-button.uk-button-primary Finish
