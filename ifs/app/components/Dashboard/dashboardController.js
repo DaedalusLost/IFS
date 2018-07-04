@@ -1,7 +1,11 @@
 let q1 = {
     title: 'Radio buttons example:',
     fields: [
-        {type: 'radio', name: 'radioButtons', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]}
+        {type: 'radio', model: 'radioButtons', options: [
+            {label: 'Option A', value: 'opA'},
+            {label: 'Option B', value: 'opB'},
+            {label: 'Option C', value: 'opC'}
+        ]}
     ],
     isFirst: true
 };
@@ -110,6 +114,7 @@ app.controller( "dashboardCtrl", function($scope, $http) {
     }
 
     $scope.nextQuestion = function() {
+        console.log($scope.radioButtons);
         $scope.question = getNext($scope.question);
         $scope.toggleButtons();
     }

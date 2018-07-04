@@ -66,7 +66,7 @@ div(uk-modal)#questionnaireModal
             h2.uk-modal-title Suggested Activities Questionnaire
         div.uk-modal-body#question
             h4 {{question.title}}
-            form(class='uk-form')
+            form(class='uk-form')#questionnaireForm
                 div(ng-repeat="field in question.fields")
                     ng-form
                         include dashboardInput.pug
