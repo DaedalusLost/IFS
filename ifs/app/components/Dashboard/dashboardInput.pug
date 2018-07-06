@@ -7,13 +7,13 @@ div(ng-if="field.type == 'radio'").uk-margin
 
 div(ng-if="field.type == 'checkbox'").uk-margin
     div(ng-repeat="option in field.options")
-        label(style="font-weight:400").uk-text-bottom #[input(type="checkbox").uk-checkbox] {{option.label}}
+        label(style="font-weight:400").uk-text-bottom #[input(type="checkbox" ng-model="option.model").uk-checkbox] {{option.label}}
         br
 
 div(ng-if="field.type == 'select'").uk-margin
-    select(ng-model="field.data" ng-options="option.label for option in field.options").uk-select.uk-form-width-small
+    select(ng-model="field.model" ng-options="option.label for option in field.options").uk-select.uk-form-width-small
     label(style="margin-bottom:2px; margin-left:5px; font-weight:400; font-size: 1.3rem").uk-text-bottom {{field.label}}
 
 div(ng-if="field.type == 'text'").uk-margin
     label(style="margin-bottom:0px; font-weight:400").uk-form-label {{field.label}}
-    input(type="text" placeholder="{{field.placeholder}}" id="{{field.id}}").uk-input
+    input(type="text" placeholder="{{field.placeholder}}" id="{{field.id}}" ng-model="field.model").uk-input

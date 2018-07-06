@@ -13,15 +13,19 @@ let q1 = {
 let q2 = {
     title: 'Checkboxes example:',
     fields: [
-        {type: 'checkbox', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]}
+        {type: 'checkbox', options: [
+            {label: 'Option A', model: 'opAmodel'},
+            {label: 'Option B', model: 'opBmodel'},
+            {label: 'Option C', model: 'opCmodel'}
+        ]}
     ]
 };
 
 let q3 = {
     title: 'Multiple inputs example:',
     fields: [
-        {type: 'select', data: 'selectField', label: 'Select', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]},
-        {type: 'text', label: 'Label', placeholder: 'Placeholder', id: 'textID'}
+        {type: 'select', model: 'selectField', label: 'Select', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]},
+        {type: 'text', label: 'Label', placeholder: 'Placeholder', id: 'textID', model: ''}
     ],
     isLast: true
 };
@@ -29,19 +33,15 @@ let q3 = {
 //The above is dummy data that should be generated elsewhere during actual use
 
 //Dummy function for now, but should be used to grab the previous question from the server
-function getPrevious(q) {
-    if (q == q2) return q1;
-    if (q == q3) return q2;
+function getPrevious(q, callback) {
+    if (q == q2) callback(q1);
+    if (q == q3) callback(q2);
 }
 
 //Dummy function for now, but should be used to grab the next question from the server
-function getNext(q) {
-    if (q == q1) return q2;
-    if (q == q2) return q3;
-}
 
-app.controller( "dashboardCtrl", function($scope, $http) {
-    $scope.courses=[];
+app.controller("dashboardCtrl", function($scope, $http) {
+    $scope.courses = [];
     $scope.assignments = [];
     $scope.stats = [];
     $scope.courseSelect = null
@@ -87,7 +87,6 @@ app.controller( "dashboardCtrl", function($scope, $http) {
      * This can then be saved as today's focus for the session
      */
     $scope.setSessionData = function() {
-
         if ($scope.hasFocusItem() ) {
             var data = {
                 'focusCourseId':  $scope.assignmentSelect.courseId,
@@ -109,14 +108,18 @@ app.controller( "dashboardCtrl", function($scope, $http) {
     }
 
     $scope.prevQuestion = function() {
-        $scope.question = getPrevious($scope.question);
-        $scope.toggleButtons();
+        $scope.getPrevious(function(q){
+            $scope.question = q;
+            $scope.toggleButtons();
+        });
     }
 
     $scope.nextQuestion = function() {
-        console.log($scope.radioButtons);
-        $scope.question = getNext($scope.question);
-        $scope.toggleButtons();
+        console.log($scope.$$ChildScope.prototype.question.fields);
+        $scope.getNext(function(q){
+            $scope.question = q;
+            $scope.toggleButtons();
+        });
     }
 
     $scope.finishSurvey = function() {
@@ -153,6 +156,16 @@ app.controller( "dashboardCtrl", function($scope, $http) {
         }
     }
 
+    $scope.getNext = function(callback) {
+        if ($scope.question == q1) callback(q2);
+        else if ($scope.question == q2) callback(q3);
+    }
+
+    $scope.getPrevious = function(callback) {
+        if ($scope.question == q2) callback(q1);
+        else if ($scope.question == q3) callback(q2);
+    }
+
     $http.get('/dashboard/data').then( function(res) {
         // NOTE: This uses a second route to load data into controller.
         // Main Layout information and more static information is loaded via Express routes.
@@ -165,7 +178,7 @@ app.controller( "dashboardCtrl", function($scope, $http) {
         $scope.skills = res.data.skills;
         $scope.studentProfile = res.data.studentProfile;
 
-        if( $scope.focus ) {
+        if($scope.focus) {
 
             $scope.courseSelect = null;
             $scope.assignmentSelect = null;
