@@ -321,4 +321,71 @@ module.exports = function (app, iosocket )
         tracker.trackEvent( iosocket, event.changeEvent(req.user.sessionId, req.user.id, "assignmentFocus", req.session.dailyFocus));
         req.session.save();
     });
+
+    app.post('/dashboard/getIntialQuestion', function(req,res) {
+        var q = `SELECT id, name FROM questionnaire WHERE assignmentId=${req.body.assignmentId}`;
+        db.query(q, function(err, questionnaire){
+            q = `SELECT id, title, fields FROM questionnaire_questions WHERE questionnaireId=${questionnaire[0].id} AND isFirst=1`;
+            db.query(q, function(err, questionData){
+                var data = {
+                    name: questionnaire[0].name,
+                    question: {
+                        id: questionData[0].id,
+                        title: questionData[0].title,
+                        fields: JSON.parse(questionData[0].fields)
+                    }
+                };
+                res.json(data);
+            });
+        });
+    });
+
+    app.post('/dashboard/getNextQuestion', function(req,res) {
+        var q;
+
+        //store req.body.response in the database before getting the next question
+
+        q = `SELECT routes FROM questionnaire_questions WHERE id=${req.body.questionId}`;
+        db.query(q, function(err, routes){
+            //actually determine the next item in the routes instead of just using the number
+            var route = routes[0].routes;
+            
+            q = `SELECT id, title, fields, isLast FROM questionnaire_questions WHERE id=${route}`;
+            db.query(q, function(err, questionData){
+                var data = {
+                    id: questionData[0].id,
+                    title: questionData[0].title,
+                    fields: JSON.parse(questionData[0].fields),
+                    isLast: questionData[0].isLast
+                };
+                console.log(req.body);
+                res.json(data);
+            });
+        });
+    });
+
+    app.post('/dashboard/getPrevQuestion', function(req,res) {
+        var q;
+
+        //store req.body.response in the database before getting the next question
+
+        q = `SELECT routes FROM questionnaire_questions WHERE id=${req.body.questionId}`;
+        db.query(q, function(err, routes){
+            //actually determine the next item in the routes instead of just using the number
+            var route = routes[0].routes - 2;
+            console.log(route);
+            
+            q = `SELECT id, title, fields, isLast FROM questionnaire_questions WHERE id=${route}`;
+            db.query(q, function(err, questionData){
+                var data = {
+                    id: questionData[0].id,
+                    title: questionData[0].title,
+                    fields: JSON.parse(questionData[0].fields),
+                    isLast: questionData[0].isLast
+                };
+                console.log(req.body);
+                res.json(data);
+            });
+        });
+    });
 }

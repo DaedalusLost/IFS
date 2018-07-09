@@ -3,7 +3,6 @@ div(ng-if="field.type == 'radio'").uk-margin
     div(ng-repeat="option in field.options")
         label(style="font-weight:400").uk-text-bottom #[input(type="radio" ng-model="field.model" ng-value="option.value").uk-radio] {{option.label}}
         br
-    h1 you entered: {{field.model}}
 
 div(ng-if="field.type == 'checkbox'").uk-margin
     div(ng-repeat="option in field.options")

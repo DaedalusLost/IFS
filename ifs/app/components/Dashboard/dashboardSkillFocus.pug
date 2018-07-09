@@ -65,7 +65,7 @@ div(uk-modal)#questionnaireModal
     div.uk-modal-dialog
         button(type="button" ng-click="closeSurvey()" uk-close).uk-modal-close-default
         div.uk-modal-header
-            h2.uk-modal-title Suggested Activities Questionnaire
+            h2.uk-modal-title {{questionnaireTitle}}
         div.uk-modal-body#question
             h4 {{question.title}}
             form(class='uk-form')#questionnaireForm

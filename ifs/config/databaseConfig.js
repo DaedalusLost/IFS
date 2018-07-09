@@ -60,7 +60,7 @@ module.exports = {
     'ifs_tips_table':                   'ifs_tips',
 
     //Questionnaire
-    'questionnaire_table':              'questionnaire'
-    'questionnaire_entities_table':     'questionnaire_entities'
-    'questionnaire_pool_table':         'questionnaire_pool', 
+    'questionnaire_table':              'questionnaire',
+    'questionnaire_questions_table':    'questionnaire_questions',
+    'questionnaire_progress_table':     'questionnaire_progress'
 };

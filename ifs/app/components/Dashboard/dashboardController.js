@@ -1,3 +1,4 @@
+/*
 let q1 = {
     title: 'Radio buttons example:',
     fields: [
@@ -29,16 +30,19 @@ let q3 = {
     ],
     isLast: true
 };
+*/
+
+
+/*
+INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (1, 1, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', 2);
+
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (2, 1, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', 3);
+
+INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (3, 1, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}], 4');
+
+*/
 
 //The above is dummy data that should be generated elsewhere during actual use
-
-//Dummy function for now, but should be used to grab the previous question from the server
-function getPrevious(q, callback) {
-    if (q == q2) callback(q1);
-    if (q == q3) callback(q2);
-}
-
-//Dummy function for now, but should be used to grab the next question from the server
 
 app.controller("dashboardCtrl", function($scope, $http) {
     $scope.courses = [];
@@ -53,7 +57,8 @@ app.controller("dashboardCtrl", function($scope, $http) {
     $scope.skills = [];
     $scope.studentProfile = null;
 
-    $scope.question = q1;
+    $scope.questionnaireTitle = null;
+    $scope.question = null;
     $scope.showBack = false;
     $scope.showNext = true;
     $scope.showFinish = false;
@@ -104,21 +109,44 @@ app.controller("dashboardCtrl", function($scope, $http) {
     }
 
     $scope.showSurvey = function() {
-        UIkit.modal('#questionnaireModal').show();
+        var data = {
+            'assignmentId': $scope.assignmentSelect.assignmentId
+        };
+
+        $http.post('/dashboard/getIntialQuestion', data).then(function(res) {
+            $scope.question = res.data.question;
+            $scope.questionnaireTitle = res.data.name;
+            UIkit.modal('#questionnaireModal').show();
+        });   
     }
 
     $scope.prevQuestion = function() {
-        $scope.getPrevious(function(q){
-            $scope.question = q;
+        console.log('previous');
+        var data = {
+            'questionId': $scope.question.id,
+            'response': $scope.$$ChildScope.prototype.question.fields
+        };
+        
+        $http.post('/dashboard/getPrevQuestion', data).then(function(res) {
+            $scope.question = res.data;
             $scope.toggleButtons();
+        },function(error){
+            console.log(error);
         });
     }
 
     $scope.nextQuestion = function() {
-        console.log($scope.$$ChildScope.prototype.question.fields);
-        $scope.getNext(function(q){
-            $scope.question = q;
+        console.log('next');
+        var data = {
+            'questionId': $scope.question.id,
+            'response': $scope.$$ChildScope.prototype.question.fields
+        };
+        
+        $http.post('/dashboard/getNextQuestion', data).then(function(res) {
+            $scope.question = res.data;
             $scope.toggleButtons();
+        },function(error){
+            console.log(error);
         });
     }
 
@@ -147,18 +175,6 @@ app.controller("dashboardCtrl", function($scope, $http) {
             $scope.showNext = true;
             $scope.showFinish = false;
         }
-    }
-
-    $scope.questionAnswered = function() {
-        for (var i in $scope.question.fields) {
-            var field = $scope.question.fields[i];
-            console.log($scope.question.fields[i]);
-        }
-    }
-
-    $scope.getNext = function(callback) {
-        if ($scope.question == q1) callback(q2);
-        else if ($scope.question == q2) callback(q3);
     }
 
     $scope.getPrevious = function(callback) {
