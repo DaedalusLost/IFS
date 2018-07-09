@@ -341,14 +341,17 @@ module.exports = function (app, iosocket )
     });
 
     app.post('/dashboard/getNextQuestion', function(req,res) {
+        console.log('test');
         var q;
 
         //store req.body.response in the database before getting the next question
 
         q = `SELECT routes FROM questionnaire_questions WHERE id=${req.body.questionId}`;
+        console.log(q);
         db.query(q, function(err, routes){
             //actually determine the next item in the routes instead of just using the number
             var route = routes[0].routes;
+            console.log(route);
             
             q = `SELECT id, title, fields, isLast FROM questionnaire_questions WHERE id=${route}`;
             db.query(q, function(err, questionData){
@@ -358,7 +361,7 @@ module.exports = function (app, iosocket )
                     fields: JSON.parse(questionData[0].fields),
                     isLast: questionData[0].isLast
                 };
-                console.log(req.body);
+                console.log(data);
                 res.json(data);
             });
         });
