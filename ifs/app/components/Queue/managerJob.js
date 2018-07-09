@@ -36,7 +36,7 @@ function cTest(jobList)
 
     for (var i = 0; i < jobList.length; i++)
     {
-        argStr = "\"" + jobList[i].runCmd + "\"";
+        argStr = jobList[i].runCmd;
         cmdArr.push(argStr);
 
     }
