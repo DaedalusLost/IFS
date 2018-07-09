@@ -341,7 +341,6 @@ module.exports = function (app, iosocket )
     });
 
     app.post('/dashboard/getNextQuestion', function(req,res) {
-        console.log('test');
         var q;
 
         //store req.body.response in the database before getting the next question
