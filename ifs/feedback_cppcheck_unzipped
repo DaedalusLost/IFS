@@ -1,0 +1,11 @@
+{
+"feedback": [
+{"category": "variableScope", "feedback": "The scope of the variable 'res' can be reduced.", "filename": "db.c", "lineNum": "30", "toolName": "cppcheck", "type": "style"},
+{"category": "variableScope", "feedback": "The scope of the variable 'query' can be reduced.", "filename": "db.c", "lineNum": "33", "toolName": "cppcheck", "type": "style"},
+{"category": "variableScope", "feedback": "The scope of the variable 'i' can be reduced.", "filename": "db.c", "lineNum": "35", "toolName": "cppcheck", "type": "style"},
+{"category": "unusedVariable", "feedback": "Unused variable: field", "filename": "db.c", "lineNum": "32", "toolName": "cppcheck", "type": "style"},
+{"category": "unreadVariable", "feedback": "Variable 'x' is assigned a value that is never used.", "filename": "db.c", "lineNum": "34", "toolName": "cppcheck", "type": "style"},
+{"category": "missingIncludeSystem", "feedback": "Cppcheck cannot find all the include files (use --check-config for details)", "filename": "", "lineNum": "", "toolName": "cppcheck", "type": "information"}
+]
+}
+

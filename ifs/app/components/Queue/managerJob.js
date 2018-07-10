@@ -30,6 +30,8 @@ function makeManagerJob(toolOptions) {
 function cTest(jobList)
 {
     // console.log(jobList);
+    // 
+    var t0 = now();
 
     var argStr = "";
     var cmdArr = [];
@@ -46,6 +48,9 @@ function cTest(jobList)
     var child = spawn("./test", cmdArr);
 
     child.stdout.on('data', function(data) {
+        
+        
+
         console.log('stdout: ' + data);
         //Here is where the output goes
     });
@@ -57,8 +62,14 @@ function cTest(jobList)
 
     child.on('close', function(code) {
         console.log('closing code: ' + code);
+        var t1 = now();
+        console.log("\n\nC time takes aprox ", (t1 - t0) + "milliseconds\n\n");
         //Here you can get the exit code of the script
     });
+
+    
+
+   
 
 
 
@@ -96,8 +107,7 @@ function loadAllTools(job, done) {
     .then(function(res) {
         t1 = now();
 
-
-        console.log("time taken to run jobs is: " + (t1 - t0) + " milliseconds");
+        console.log("\n\njavascript takes about: " + (t1 - t0) + " milliseconds\n\n");
 
         // return everything that passed and was fulfilled
         var passed =[], failed = [];

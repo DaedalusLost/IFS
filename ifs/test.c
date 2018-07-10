@@ -2,6 +2,7 @@
 #include <omp.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 
 char * toolName(char * path);
@@ -20,44 +21,57 @@ int main(int argc, char * argv[])
 
     }
 
-	char strArr[argc-1][1000];
+	char * strArr[argc-1];
 
-
-	#pragma omp parallel for
-	for(int k = 0; k < argc-1; k++)
+	#pragma omp parallel
 	{
-		char tool[255];
-		char str[255] = {'\0'};
-		char temp[1000] = {'\0'};
-		char fileName[255] = "feedback_";
-
-		strcpy(tool, toolName(commandArray[k]));
-
-		strcat(fileName, tool);
-		strcat(fileName, "_unzipped");
-
-		printf("tool: %s\n", fileName);
-
-
-		FILE * fp, * submitFile;
-
-		fp = popen(commandArray[k], "r");
-
-		while(fgets(str, sizeof(str)-1, fp) != NULL)
+		for(int k = 0; k < argc-1; k++)
 		{
-			strcat(temp, str);
+			char tool[255];
+			char * str = NULL;
+			char line[100];
+			char fileName[255] = "feedback_";
+			int length;
+			char * temp = NULL;
+			int size = 1, newSize = 255, index = 0;
+
+			#pragma omp critical
+			strcpy(tool, toolName(commandArray[k]));
+
+			strcat(fileName, tool);
+			strcat(fileName, "_unzipped");
+
+			FILE * fp, * submitFile;
+
+			fp = popen(commandArray[k], "r");
+
+			#pragma omp critical
+			while (fgets(line, sizeof(line), fp) != NULL) 
+			{
+			    length = strlen(line);
+			    temp = realloc(str, size + length);  // allocate room for the buf that gets appended
+			    if (temp == NULL) {
+			      // allocation error
+			    } else {
+			      str = temp;
+			    }
+			    strcpy(str + size - 1, line);     // append buffer to str
+			    size += length; 
+		  	}		
+
+			pclose(fp);
+
+
+			submitFile = fopen(fileName, "wa");
+			fprintf(submitFile, "%s", str);
+			fclose(submitFile);
+
+			// strArr[k] = malloc(sizeof(char) * strlen(line)+1);
+
 		}
-
-		pclose(fp);
-
-		strcpy(strArr[k], temp);
-
 	}
 
-	for(int i = 0; i < argc-1; i++)
-	{
-		printf("%s\n", strArr[i]);
-	}
+	return 0;
 
 
 }
@@ -99,7 +113,5 @@ char * toolName(char * path)
 		str[count++] = path[k];
 	}
 	str[count] = '\0';
-
-
 	return str;
 }
