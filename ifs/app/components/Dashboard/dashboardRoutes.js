@@ -23,6 +23,49 @@ var feedbackModel = require(__components + "InteractionEvents/feedbackEvents");
 var event = require(__components + "InteractionEvents/buildEvent.js" );
 var tracker = require(__components + "InteractionEvents/trackEvents.js" );
 
+let q1 = {
+    title: 'Radio buttons example:',
+    fields: [
+        {type: 'radio', model: 'radioButtons', options: [
+            {label: 'Option A', value: 'opA'},
+            {label: 'Option B', value: 'opB'},
+            {label: 'Option C', value: 'opC'}
+        ]}
+    ]
+};
+
+let q2 = {
+    title: 'Checkboxes example:',
+    fields: [
+        {type: 'checkbox', options: [
+            {label: 'Option A', model: 'opAmodel'},
+            {label: 'Option B', model: 'opBmodel'},
+            {label: 'Option C', model: 'opCmodel'}
+        ]}
+    ]
+};
+
+let q3 = {
+    title: 'Multiple inputs example:',
+    fields: [
+        {type: 'select', model: 'selectField', label: 'Select', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]},
+        {type: 'text', label: 'Label', placeholder: 'Placeholder', id: 'textID', model: ''}
+    ]
+};
+
+var arr = [];
+
+for (var i = 0; i < 9; i++) {
+    if (i == 0 || i == 3 || i == 6)
+        arr[i] = q1;
+    if (i == 1 || i == 4 || i == 7)
+        arr[i] = q2;
+    if (i == 2 || i == 5 || i == 8)
+        arr[i] = q3;
+}
+
+let counter = 0;
+
 module.exports = function (app, iosocket )
 {    /**
      * [focusOptions description]
@@ -322,25 +365,79 @@ module.exports = function (app, iosocket )
         req.session.save();
     });
 
-    app.post('/dashboard/getIntialQuestion', function(req,res) {
+    app.post('/dashboard/getAllQuestions', function(req,res) {
         var q = `SELECT id, name FROM questionnaire WHERE assignmentId=${req.body.assignmentId}`;
         db.query(q, function(err, questionnaire){
-            q = `SELECT id, title, fields FROM questionnaire_questions WHERE questionnaireId=${questionnaire[0].id} AND isFirst=1`;
+            if(err) {
+                Logger.error(err);
+                res.end();
+            }
+            q = `SELECT id, title, fields, routes, isFirst, isLast FROM questionnaire_questions WHERE questionnaireId=${questionnaire[0].id}`;
             db.query(q, function(err, questionData){
-                var data = {
+                if(err) {
+                    Logger.error(err);
+                    res.end();
+                }
+
+                var first = questionData.find(function(element) {
+                    return element.isFirst == 1;
+                });
+
+                if (!first) res.end();
+
+                questionData.splice(questionData.indexOf(first), 1);
+                questionData.unshift(first);
+
+                for (var i = 0; i < questionData.length; i++) {
+                    questionData[i].fields = JSON.parse(questionData[i].fields);
+                }
+
+                res.json({
+                    name: questionnaire[0].name,
+                    questions: questionData
+                });
+            });
+        });
+    });
+
+    app.post('/dashboard/getIntialQuestion', function(req,res) {
+        /*
+        var data = {
+            name: 'Sample questionnaire',
+            question: q1
+        };
+        res.json(data);
+        */
+        var q = `SELECT id, name FROM questionnaire WHERE assignmentId=${req.body.assignmentId}`;
+        db.query(q, function(err, questionnaire){
+            if(err) {
+                Logger.error(err);
+                res.end();
+            }
+            q = `SELECT id, title, fields, routes FROM questionnaire_questions WHERE questionnaireId=${questionnaire[0].id} AND isFirst=1`;
+            db.query(q, function(err, questionData){
+                if(err) {
+                    Logger.error(err);
+                    res.end();
+                }
+
+                res.json({
                     name: questionnaire[0].name,
                     question: {
                         id: questionData[0].id,
                         title: questionData[0].title,
                         fields: JSON.parse(questionData[0].fields)
                     }
-                };
-                res.json(data);
+                });
             });
         });
     });
 
     app.post('/dashboard/getNextQuestion', function(req,res) {
+        counter++;
+        console.log(counter);
+        //res.json(arr[counter]);
+
         var q;
 
         //store req.body.response in the database before getting the next question
@@ -348,12 +445,21 @@ module.exports = function (app, iosocket )
         q = `SELECT routes FROM questionnaire_questions WHERE id=${req.body.questionId}`;
         console.log(q);
         db.query(q, function(err, routes){
+            if(err) {
+                Logger.error(err);
+                res.end();
+            }
             //actually determine the next item in the routes instead of just using the number
             var route = routes[0].routes;
             console.log(route);
             
             q = `SELECT id, title, fields, isLast FROM questionnaire_questions WHERE id=${route}`;
             db.query(q, function(err, questionData){
+                if(err) {
+                    Logger.error(err);
+                    res.end();
+                }
+
                 var data = {
                     id: questionData[0].id,
                     title: questionData[0].title,
@@ -367,18 +473,31 @@ module.exports = function (app, iosocket )
     });
 
     app.post('/dashboard/getPrevQuestion', function(req,res) {
+        counter--;
+        console.log(counter);
+       // res.json(arr[counter]);
         var q;
 
         //store req.body.response in the database before getting the next question
 
         q = `SELECT routes FROM questionnaire_questions WHERE id=${req.body.questionId}`;
         db.query(q, function(err, routes){
+            if(err) {
+                Logger.error(err);
+                res.end();
+            }
+
             //actually determine the next item in the routes instead of just using the number
             var route = routes[0].routes - 2;
             console.log(route);
             
             q = `SELECT id, title, fields, isLast FROM questionnaire_questions WHERE id=${route}`;
             db.query(q, function(err, questionData){
+                if(err) {
+                    Logger.error(err);
+                    res.end();
+                }
+
                 var data = {
                     id: questionData[0].id,
                     title: questionData[0].title,

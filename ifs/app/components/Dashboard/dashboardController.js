@@ -56,6 +56,10 @@ INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields,
 
 //The above is dummy data that should be generated elsewhere during actual use
 
+var allQuestions = [];
+var progress = [];
+var count = -1;
+
 app.controller("dashboardCtrl", function($scope, $http) {
     $scope.courses = [];
     $scope.assignments = [];
@@ -70,6 +74,7 @@ app.controller("dashboardCtrl", function($scope, $http) {
     $scope.studentProfile = null;
 
     $scope.questionnaireTitle = null;
+    $scope.allQuestions = [];
     $scope.question = null;
     $scope.showBack = false;
     $scope.showNext = true;
@@ -125,14 +130,26 @@ app.controller("dashboardCtrl", function($scope, $http) {
             'assignmentId': $scope.assignmentSelect.assignmentId
         };
 
-        $http.post('/dashboard/getIntialQuestion', data).then(function(res) {
-            $scope.question = res.data.question;
+        $http.post('/dashboard/getAllQuestions', data).then(function(res) {
+            console.log(res.data.questions);
+            allQuestions = res.data.questions;
+            $scope.question = res.data.questions[0]; //Get based on progress
             $scope.questionnaireTitle = res.data.name;
             UIkit.modal('#questionnaireModal').show();
-        });   
+        }).catch(function(err) {
+            console.log(err);
+        });  
     }
 
     $scope.prevQuestion = function() {
+        console.log(count);
+        console.log(progress[count]);
+
+        $scope.question = progress[count];
+        count--;
+
+
+        /*
         $http({
             method: 'POST',
             url: '/dashboard/getPrevQuestion',
@@ -143,12 +160,37 @@ app.controller("dashboardCtrl", function($scope, $http) {
         }).then(function(res) {
             $scope.question = res.data;
             $scope.toggleButtons();
-        }).catch(function() {
+        }).catch(function(err) {
+            console.log(err);
         });
+        */
     }
 
     $scope.nextQuestion = function() {
-        console.log($scope.$$ChildScope.prototype.question.fields);
+        console.log($scope.$$ChildScope.prototype.question);
+
+        //Actually figure out routes later, for now just use what's given
+        var route = $scope.question.routes
+
+        console.log(progress.length);
+        console.log(count);
+
+
+        //Store progress
+        if (progress.length - 1 == count) {
+            progress.push($scope.$$ChildScope.prototype.question);
+            count++;
+        }
+
+        //Change the question and the buttons appropriately
+        $scope.question = allQuestions.find(function(element) {
+            return element.id == route;
+        });
+        $scope.toggleButtons();
+
+
+
+        /*
         $http({
             method: 'POST',
             url: '/dashboard/getNextQuestion',
@@ -159,8 +201,29 @@ app.controller("dashboardCtrl", function($scope, $http) {
         }).then(function(res) {
             $scope.question = res.data;
             $scope.toggleButtons();
-        }).catch(function() {
+        }).catch(function(err) {
+            console.log(err);
         });
+
+        $.ajax({
+            type: "post",
+            url:'/dashboard/getNextQuestion',
+            dataType: 'json',
+            data: {
+                'questionId': $scope.question.id,
+                'response': $scope.$$ChildScope.prototype.question.fields
+            },
+            success: function (res, question) {
+                console.log(res);
+                $scope.question = res;
+                console.log($scope.question);
+                $scope.toggleButtons();
+            },
+            error: function (req, err){
+                console.log(err);
+            }
+        });
+        */
     }
 
     $scope.finishSurvey = function() {
