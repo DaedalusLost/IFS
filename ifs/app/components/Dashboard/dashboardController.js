@@ -1,4 +1,3 @@
-/*
 let q1 = {
     title: 'Radio buttons example:',
     fields: [
@@ -30,7 +29,6 @@ let q3 = {
     ],
     isLast: true
 };
-*/
 
 
 /*
@@ -150,6 +148,7 @@ app.controller("dashboardCtrl", function($scope, $http) {
     }
 
     $scope.nextQuestion = function() {
+        console.log($scope.$$ChildScope.prototype.question.fields);
         $http({
             method: 'POST',
             url: '/dashboard/getNextQuestion',
