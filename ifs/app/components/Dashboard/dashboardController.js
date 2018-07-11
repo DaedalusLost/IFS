@@ -142,11 +142,11 @@ app.controller("dashboardCtrl", function($scope, $http) {
     }
 
     $scope.prevQuestion = function() {
-        console.log(count);
-        console.log(progress[count]);
-
         $scope.question = progress[count];
         count--;
+
+        console.log('prev:');
+        console.log(progress);
 
 
         /*
@@ -167,20 +167,15 @@ app.controller("dashboardCtrl", function($scope, $http) {
     }
 
     $scope.nextQuestion = function() {
-        console.log($scope.$$ChildScope.prototype.question);
+        //console.log($scope.$$ChildScope.prototype.question);
 
         //Actually figure out routes later, for now just use what's given
         var route = $scope.question.routes
 
-        console.log(progress.length);
-        console.log(count);
-
 
         //Store progress
-        if (progress.length - 1 == count) {
-            progress.push($scope.$$ChildScope.prototype.question);
-            count++;
-        }
+        progress.push($scope.$$ChildScope.prototype.question);
+        count++;
 
         //Change the question and the buttons appropriately
         $scope.question = allQuestions.find(function(element) {
@@ -188,6 +183,8 @@ app.controller("dashboardCtrl", function($scope, $http) {
         });
         $scope.toggleButtons();
 
+console.log('next:');
+console.log(progress);
 
 
         /*
@@ -230,6 +227,9 @@ app.controller("dashboardCtrl", function($scope, $http) {
         UIkit.modal('#questionnaireModal').hide();
         $scope.getNextSelected();
         $scope.finishedSurvey = true;
+
+        //Store data
+        progress.push($scope.$$ChildScope.prototype.question);
     }
 
     $scope.closeSurvey = function() {
