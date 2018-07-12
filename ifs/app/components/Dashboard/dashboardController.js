@@ -42,9 +42,6 @@ INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields,
 var allQuestions = [];
 var progress = [];
 var index = 0;
-var firstQuestion = false;
-
-
 
 app.controller("dashboardCtrl", function($scope, $http) {
     $scope.courses = [];
@@ -65,6 +62,7 @@ app.controller("dashboardCtrl", function($scope, $http) {
     $scope.showNext = true;
     $scope.showFinish = false;
     $scope.finishedSurvey = false;
+
     /**
      * Selects the next active DIV for student focus.
      * @return {[type]} [description]
@@ -76,14 +74,17 @@ app.controller("dashboardCtrl", function($scope, $http) {
         if( $scope.activeStudentFocus == 2 )
             $scope.setSessionData();
     }
+
     $scope.assignmentComplete = function() {
         $scope.activeStudentFocus = 3;
     }
+
     $scope.resetSelectedFocus = function() {
         $scope.activeStudentFocus = 0;
         $scope.courseSelect = null;
         $scope.assignmentSelect = null;
     }
+
     /**
      * Send an http request to server to indicate a focus has been set.
      * This can then be saved as today's focus for the session
@@ -99,48 +100,40 @@ app.controller("dashboardCtrl", function($scope, $http) {
             });
         }
     }
+
     $scope.hasFocusItem = function() {
         return $scope.assignmentSelect && $scope.courseSelect;
     }
+
     $scope.showSurvey = function() {
-        var data = {
-            'assignmentId': $scope.assignmentSelect.assignmentId
-        };
-        $http.post('/dashboard/getAllQuestions', data).then(function(res) {
-            console.log(res.data.questions);
-            allQuestions = res.data.questions;
-            $scope.question = JSON.parse(JSON.stringify(res.data.questions[0])); //Get based on progress
-            progress.push($scope.$$ChildScope.prototype.question);
-            console.log(progress);
-            $scope.questionnaireTitle = res.data.name;
-            firstQuestion = true;
+        if (progress.length > 0) {
+            $scope.question = progress[index];
             UIkit.modal('#questionnaireModal').show();
-        }).catch(function(err) {
-            console.log(err);
-        });  
+        } else {
+            var data = {
+                'assignmentId': $scope.assignmentSelect.assignmentId
+            };
+            $http.post('/dashboard/getAllQuestions', data).then(function(res) {
+                allQuestions = res.data.questions;
+
+                $scope.question = JSON.parse(JSON.stringify(allQuestions[0])); //Get based on progress
+                progress.push($scope.$$ChildScope.prototype.question);
+                
+                $scope.questionnaireTitle = res.data.name;
+                UIkit.modal('#questionnaireModal').show();
+            }).catch(function(err) {
+                console.log(err);
+            });
+        }   
     }
+
     $scope.prevQuestion = function() {
         progress[index] = $scope.$$ChildScope.prototype.question;
         index--;
         $scope.question = progress[index];
         $scope.toggleButtons();
-
-        /*
-        $http({
-            method: 'POST',
-            url: '/dashboard/getPrevQuestion',
-            data: {
-                'questionId': $scope.question.id,
-                'response': $scope.$$ChildScope.prototype.question.fields
-            }
-        }).then(function(res) {
-            $scope.question = res.data;
-            $scope.toggleButtons();
-        }).catch(function(err) {
-            console.log(err);
-        });
-        */
     }
+
     $scope.nextQuestion = function() {
         //console.log($scope.question);
         //Actually figure out routes later, for now just use what's given
@@ -167,56 +160,27 @@ app.controller("dashboardCtrl", function($scope, $http) {
                     if (allQuestions[i].id == route)
                         $scope.question = JSON.parse(JSON.stringify(allQuestions[i])); //Deep copy the new question
             } else {
-                $scope.question = progress[index];  
+                $scope.question = progress[index];
             }
         }
 
         //Change the question and the buttons appropriately
         $scope.toggleButtons();
-
-        /*
-        $http({
-            method: 'POST',
-            url: '/dashboard/getNextQuestion',
-            data: {
-                'questionId': $scope.question.id,
-                'response': $scope.$$ChildScope.prototype.question.fields
-            }
-        }).then(function(res) {
-            $scope.question = res.data;
-            $scope.toggleButtons();
-        }).catch(function(err) {
-            console.log(err);
-        });
-        $.ajax({
-            type: "post",
-            url:'/dashboard/getNextQuestion',
-            dataType: 'json',
-            data: {
-                'questionId': $scope.question.id,
-                'response': $scope.$$ChildScope.prototype.question.fields
-            },
-            success: function (res, question) {
-                console.log(res);
-                $scope.question = res;
-                console.log($scope.question);
-                $scope.toggleButtons();
-            },
-            error: function (req, err){
-                console.log(err);
-            }
-        });
-        */
     }
+
     $scope.finishSurvey = function() {
         UIkit.modal('#questionnaireModal').hide();
-        $scope.getNextSelected();
+        if ($scope.activeStudentFocus != 2)
+            $scope.getNextSelected();
         $scope.finishedSurvey = true;
     }
+
     $scope.closeSurvey = function() {
+        progress[index] = $scope.$$ChildScope.prototype.question;
         if ($scope.activeStudentFocus != 2)
             $scope.getNextSelected();
     }
+
     $scope.toggleButtons = function() {
         if ($scope.question.isFirst) {
             $scope.showBack = false;
@@ -232,10 +196,7 @@ app.controller("dashboardCtrl", function($scope, $http) {
             $scope.showFinish = false;
         }
     }
-    $scope.getPrevious = function(callback) {
-        if ($scope.question == q2) callback(q1);
-        else if ($scope.question == q3) callback(q2);
-    }
+
     $http.get('/dashboard/data').then( function(res) {
         // NOTE: This uses a second route to load data into controller.
         // Main Layout information and more static information is loaded via Express routes.

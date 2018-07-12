@@ -61,7 +61,7 @@ div#studentFocus
         div.uk-card-body
             button(type="button" ng-click="resetSelectedFocus( $event )" ).uk-button.uk-button-default.uk-align-center Set New Focus?
 
-div(uk-modal)#questionnaireModal
+div(uk-modal="bg-close: false; esc-close: false;")#questionnaireModal
     div.uk-modal-dialog
         button(type="button" ng-click="closeSurvey()" uk-close).uk-modal-close-default
         div.uk-modal-header
