@@ -117,12 +117,22 @@ app.controller("dashboardCtrl", function($scope, $http) {
             $http.post('/dashboard/getAllQuestions', data).then(function(res) {
                 $scope.allQuestions = res.data.questions;
                 $scope.questionnaireId = res.data.id;
+                progress = res.data.progress;
+                index = res.data.index;
+                $scope.finishedSurvey = res.data.isCompleted;
 
-                $scope.question = JSON.parse(JSON.stringify($scope.allQuestions[0])); //Get based on progress
-                progress.push($scope.$$ChildScope.prototype.question);
-                
-                $scope.questionnaireTitle = res.data.name;
-                UIkit.modal('#questionnaireModal').show();
+                if (!$scope.finishedSurvey) {
+                    if (progress.length > 0) {
+                        $scope.question = progress[index];
+                    } else {
+                        $scope.question = JSON.parse(JSON.stringify($scope.allQuestions[0])); //Get based on progress
+                        progress.push($scope.$$ChildScope.prototype.question);
+                    }
+                    
+                    
+                    $scope.questionnaireTitle = res.data.name;
+                    UIkit.modal('#questionnaireModal').show();
+                }
             }).catch(function(err) {
                 console.log(err);
             });

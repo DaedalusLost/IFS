@@ -374,28 +374,34 @@ module.exports = function (app, iosocket )
             }
             q = `SELECT id, title, fields, routes, isFirst, isLast FROM questionnaire_questions WHERE questionnaireId=${questionnaire[0].id}`;
             db.query(q, function(err, questionData){
-                if(err) {
-                    Logger.error(err);
-                    res.end();
-                }
+                q = `SELECT progressIndex, progress, isCompleted FROM questionnaire_progress WHERE questionnaireId=${questionnaire[0].id}`;
+                db.query(q, function(err, progressData) {
+                    if(err) {
+                        Logger.error(err);
+                        res.end();
+                    }
 
-                var first = questionData.find(function(element) {
-                    return element.isFirst == 1;
-                });
+                    var first = questionData.find(function(element) {
+                        return element.isFirst == 1;
+                    });
 
-                if (!first) res.end();
+                    if (!first) res.end();
 
-                questionData.splice(questionData.indexOf(first), 1);
-                questionData.unshift(first);
+                    questionData.splice(questionData.indexOf(first), 1);
+                    questionData.unshift(first);
 
-                for (var i = 0; i < questionData.length; i++) {
-                    questionData[i].fields = JSON.parse(questionData[i].fields);
-                }
+                    for (var i = 0; i < questionData.length; i++) {
+                        questionData[i].fields = JSON.parse(questionData[i].fields);
+                    }
 
-                res.json({
-                    name: questionnaire[0].name,
-                    id: questionnaire[0].id,
-                    questions: questionData
+                    res.json({
+                        name: questionnaire[0].name,
+                        id: questionnaire[0].id,
+                        isCompleted: progressData[0].isCompleted,
+                        index: progressData[0].progressIndex,
+                        progress: JSON.parse(progressData[0].progress),
+                        questions: questionData
+                    });
                 });
             });
         });

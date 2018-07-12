@@ -425,6 +425,7 @@ try {
             userId INT UNSIGNED NOT NULL, \
             questionnaireId INT UNSIGNED NOT NULL, \
             progress JSON, \
+            progressIndex INT UNSIGNED NOT NULL DEFAULT 0, \
             isCompleted BOOL NOT NULL DEFAULT 0, \
             PRIMARY KEY(id), \
             FOREIGN Key (userId) REFERENCES " + dbcfg.database + "." + dbcfg.users_table + "(id), \
