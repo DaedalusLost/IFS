@@ -9,7 +9,6 @@ let q1 = {
     ],
     isFirst: true
 };
-
 let q2 = {
     title: 'Checkboxes example:',
     fields: [
@@ -20,7 +19,6 @@ let q2 = {
         ]}
     ]
 };
-
 let q3 = {
     title: 'Multiple inputs example:',
     fields: [
@@ -29,36 +27,24 @@ let q3 = {
     ],
     isLast: true
 };
-
-
 /*
 INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (1, 1, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '2'); 
-
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (2, 1, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '3');
-
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (3, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '4');
-
-
 INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (4, 1, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '5'); 
-
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (5, 1, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '6');
-
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (6, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '7');
-
-
 INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (7, 1, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '8'); 
-
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (8, 1, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '9');
-
 INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (9, 1, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '10');
-
 */
-
 //The above is dummy data that should be generated elsewhere during actual use
-
 var allQuestions = [];
 var progress = [];
-var count = -1;
+var index = 0;
+var firstQuestion = false;
+
+
 
 app.controller("dashboardCtrl", function($scope, $http) {
     $scope.courses = [];
@@ -72,7 +58,6 @@ app.controller("dashboardCtrl", function($scope, $http) {
     $scope.toolType = null;
     $scope.skills = [];
     $scope.studentProfile = null;
-
     $scope.questionnaireTitle = null;
     $scope.allQuestions = [];
     $scope.question = null;
@@ -80,7 +65,6 @@ app.controller("dashboardCtrl", function($scope, $http) {
     $scope.showNext = true;
     $scope.showFinish = false;
     $scope.finishedSurvey = false;
-
     /**
      * Selects the next active DIV for student focus.
      * @return {[type]} [description]
@@ -89,21 +73,17 @@ app.controller("dashboardCtrl", function($scope, $http) {
         $scope.activeStudentFocus = ($scope.activeStudentFocus +1) % 3;
         if( $scope.activeStudentFocus == 0 )
             $scope.resetSelectedFocus();
-
         if( $scope.activeStudentFocus == 2 )
             $scope.setSessionData();
     }
-
     $scope.assignmentComplete = function() {
         $scope.activeStudentFocus = 3;
     }
-
     $scope.resetSelectedFocus = function() {
         $scope.activeStudentFocus = 0;
         $scope.courseSelect = null;
         $scope.assignmentSelect = null;
     }
-
     /**
      * Send an http request to server to indicate a focus has been set.
      * This can then be saved as today's focus for the session
@@ -114,40 +94,36 @@ app.controller("dashboardCtrl", function($scope, $http) {
                 'focusCourseId':  $scope.assignmentSelect.courseId,
                 'focusAssignmentId': $scope.assignmentSelect.assignmentId
             };
-
             $http.post('/dashboard/assignmentFocusData', data ).then( function(success) {
             },function(error){
             });
         }
     }
-
     $scope.hasFocusItem = function() {
         return $scope.assignmentSelect && $scope.courseSelect;
     }
-
     $scope.showSurvey = function() {
         var data = {
             'assignmentId': $scope.assignmentSelect.assignmentId
         };
-
         $http.post('/dashboard/getAllQuestions', data).then(function(res) {
             console.log(res.data.questions);
             allQuestions = res.data.questions;
-            $scope.question = res.data.questions[0]; //Get based on progress
+            $scope.question = JSON.parse(JSON.stringify(res.data.questions[0])); //Get based on progress
+            progress.push($scope.$$ChildScope.prototype.question);
+            console.log(progress);
             $scope.questionnaireTitle = res.data.name;
+            firstQuestion = true;
             UIkit.modal('#questionnaireModal').show();
         }).catch(function(err) {
             console.log(err);
         });  
     }
-
     $scope.prevQuestion = function() {
-        $scope.question = progress[count];
-        count--;
-
-        console.log('prev:');
-        console.log(progress);
-
+        progress[index] = $scope.$$ChildScope.prototype.question;
+        index--;
+        $scope.question = progress[index];
+        $scope.toggleButtons();
 
         /*
         $http({
@@ -165,27 +141,38 @@ app.controller("dashboardCtrl", function($scope, $http) {
         });
         */
     }
-
     $scope.nextQuestion = function() {
-        //console.log($scope.$$ChildScope.prototype.question);
-
+        //console.log($scope.question);
         //Actually figure out routes later, for now just use what's given
-        var route = $scope.question.routes
+        var route = $scope.question.routes;
 
+        //Serve the next question and store progress appropriately
+        if (progress.length == index || progress.length - 1 == index) {
+            progress[index] = $scope.$$ChildScope.prototype.question;
+            index++;
+            firstQuestion = false;
 
-        //Store progress
-        progress.push($scope.$$ChildScope.prototype.question);
-        count++;
+            for (var i = 0; i < allQuestions.length; i++) 
+                if (allQuestions[i].id == route)
+                    $scope.question = JSON.parse(JSON.stringify(allQuestions[i])); //Deep copy the new question
+        } else {
+            progress[index] = $scope.$$ChildScope.prototype.question;
+            index++;
+
+            //If in the middle of the questionnaire and the determined route is different
+            //from the next progress item, invalidate all further progress
+            if (progress.length != index && progress[index-1].routes != route) {
+                progress = progress.slice(0, index);
+                for (var i = 0; i < allQuestions.length; i++) 
+                    if (allQuestions[i].id == route)
+                        $scope.question = JSON.parse(JSON.stringify(allQuestions[i])); //Deep copy the new question
+            } else {
+                $scope.question = progress[index];  
+            }
+        }
 
         //Change the question and the buttons appropriately
-        $scope.question = allQuestions.find(function(element) {
-            return element.id == route;
-        });
         $scope.toggleButtons();
-
-console.log('next:');
-console.log(progress);
-
 
         /*
         $http({
@@ -201,7 +188,6 @@ console.log(progress);
         }).catch(function(err) {
             console.log(err);
         });
-
         $.ajax({
             type: "post",
             url:'/dashboard/getNextQuestion',
@@ -222,21 +208,15 @@ console.log(progress);
         });
         */
     }
-
     $scope.finishSurvey = function() {
         UIkit.modal('#questionnaireModal').hide();
         $scope.getNextSelected();
         $scope.finishedSurvey = true;
-
-        //Store data
-        progress.push($scope.$$ChildScope.prototype.question);
     }
-
     $scope.closeSurvey = function() {
         if ($scope.activeStudentFocus != 2)
             $scope.getNextSelected();
     }
-
     $scope.toggleButtons = function() {
         if ($scope.question.isFirst) {
             $scope.showBack = false;
@@ -252,12 +232,10 @@ console.log(progress);
             $scope.showFinish = false;
         }
     }
-
     $scope.getPrevious = function(callback) {
         if ($scope.question == q2) callback(q1);
         else if ($scope.question == q3) callback(q2);
     }
-
     $http.get('/dashboard/data').then( function(res) {
         // NOTE: This uses a second route to load data into controller.
         // Main Layout information and more static information is loaded via Express routes.
@@ -269,25 +247,20 @@ console.log(progress);
         $scope.toolType = res.data.toolType;
         $scope.skills = res.data.skills;
         $scope.studentProfile = res.data.studentProfile;
-
         if($scope.focus) {
-
             $scope.courseSelect = null;
             $scope.assignmentSelect = null;
-
             // Attach course select and assignment select
             for( var i = 0; i < $scope.courses.length;i++ ) {
                 if( $scope.courses[i].courseId == $scope.focus.courseId) {
                     $scope.courseSelect = $scope.courses[i];
                 }
             }
-
             for( var i = 0; i < $scope.assignments.length;i++ ) {
                 if( $scope.assignments[i].assignmentId == $scope.focus.assignmentId) {
                     $scope.assignmentSelect = $scope.assignments[i];
                 }
             }
-
             if($scope.hasFocusItem())
                 $scope.activeStudentFocus = 2;
         }
