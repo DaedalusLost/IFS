@@ -192,7 +192,7 @@ app.controller("dashboardCtrl", function($scope, $http) {
             'isCompleted': $scope.finishedSurvey
         };
         console.log(JSON.stringify(progress));
-        $http.post('/dashboard/saveProgress', data ).then( function(success) {
+        $http.post('/dashboard/saveProgress', data ).then( function(res) {
         },function(error){
         });
     }

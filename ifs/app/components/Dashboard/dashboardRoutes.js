@@ -402,133 +402,20 @@ module.exports = function (app, iosocket )
     });
 
     app.post('/dashboard/saveProgress', function(req,res) {
-        //progress=\'${JSON.stringify(req.body.progress)}\'
-        var q = `UPDATE questionnaire_progress SET isCompleted=${req.body.isCompleted} \
-                 WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId} \
-                 IF @@ROWCOUNT=0  INSERT INTO questionnaire_progress (userId, questionnaireId, progress, isCompleted) \
-                 VALUES (${req.user.id}, ${req.body.questionnaireId}, \'${JSON.stringify(req.body.progress)}\',${req.body.isCompleted}) \
-                 `;/*\
-
-                 ELSE INSERT INTO questionnaire_progress (userId, questionnaireId, progress, isCompleted) \
+        var q = `SELECT id FROM questionnaire_progress WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId}`;
+        
+        db.query(q, function(err, id) {
+            if (id.length == 0) {
+                 q = `INSERT INTO questionnaire_progress (userId, questionnaireId, progress, isCompleted) \
                  VALUES (${req.user.id}, ${req.body.questionnaireId}, \'${JSON.stringify(req.body.progress)}\',${req.body.isCompleted})`;
-    */
-
-        console.log(q);
-
-        db.query(q, function(err, data) {
-            if (err)
-                console.log(err);
-            console.log('success!');
-        });
-    });
-
-    app.post('/dashboard/getIntialQuestion', function(req,res) {
-        /*
-        var data = {
-            name: 'Sample questionnaire',
-            question: q1
-        };
-        res.json(data);
-        */
-        var q = `SELECT id, name FROM questionnaire WHERE assignmentId=${req.body.assignmentId}`;
-        db.query(q, function(err, questionnaire){
-            if(err) {
-                Logger.error(err);
-                res.end();
+                 db.query(q, function(err, data) {
+                 });
+            } else {
+                 q = `UPDATE questionnaire_progress SET isCompleted=${req.body.isCompleted}, progress=\'${JSON.stringify(req.body.progress)}\' \
+                 WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId}`;
+                 db.query(q, function(err, data) {
+                 }); 
             }
-            q = `SELECT id, title, fields, routes FROM questionnaire_questions WHERE questionnaireId=${questionnaire[0].id} AND isFirst=1`;
-            db.query(q, function(err, questionData){
-                if(err) {
-                    Logger.error(err);
-                    res.end();
-                }
-
-                res.json({
-                    name: questionnaire[0].name,
-                    question: {
-                        id: questionData[0].id,
-                        title: questionData[0].title,
-                        fields: JSON.parse(questionData[0].fields)
-                    }
-                });
-            });
-        });
-    });
-
-    app.post('/dashboard/getNextQuestion', function(req,res) {
-        counter++;
-        console.log(counter);
-        //res.json(arr[counter]);
-
-        var q;
-
-        //store req.body.response in the database before getting the next question
-
-        q = `SELECT routes FROM questionnaire_questions WHERE id=${req.body.questionId}`;
-        console.log(q);
-        db.query(q, function(err, routes){
-            if(err) {
-                Logger.error(err);
-                res.end();
-            }
-            //actually determine the next item in the routes instead of just using the number
-            var route = routes[0].routes;
-            console.log(route);
-            
-            q = `SELECT id, title, fields, isLast FROM questionnaire_questions WHERE id=${route}`;
-            db.query(q, function(err, questionData){
-                if(err) {
-                    Logger.error(err);
-                    res.end();
-                }
-
-                var data = {
-                    id: questionData[0].id,
-                    title: questionData[0].title,
-                    fields: JSON.parse(questionData[0].fields),
-                    isLast: questionData[0].isLast
-                };
-                console.log(data);
-                res.json(data);
-            });
-        });
-    });
-
-    app.post('/dashboard/getPrevQuestion', function(req,res) {
-        counter--;
-        console.log(counter);
-       // res.json(arr[counter]);
-        var q;
-
-        //store req.body.response in the database before getting the next question
-
-        q = `SELECT routes FROM questionnaire_questions WHERE id=${req.body.questionId}`;
-        db.query(q, function(err, routes){
-            if(err) {
-                Logger.error(err);
-                res.end();
-            }
-
-            //actually determine the next item in the routes instead of just using the number
-            var route = routes[0].routes - 2;
-            console.log(route);
-            
-            q = `SELECT id, title, fields, isLast FROM questionnaire_questions WHERE id=${route}`;
-            db.query(q, function(err, questionData){
-                if(err) {
-                    Logger.error(err);
-                    res.end();
-                }
-
-                var data = {
-                    id: questionData[0].id,
-                    title: questionData[0].title,
-                    fields: JSON.parse(questionData[0].fields),
-                    isLast: questionData[0].isLast
-                };
-                console.log(req.body);
-                res.json(data);
-            });
         });
     });
 }
