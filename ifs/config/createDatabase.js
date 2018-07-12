@@ -423,14 +423,12 @@ try {
         connection.query(" CREATE TABLE IF NOT EXISTS " + dbcfg.database + "." + dbcfg.questionnaire_progress_table + " ( \
             id INT UNSIGNED NOT NULL AUTO_INCREMENT, \
             userId INT UNSIGNED NOT NULL, \
-            assignmentId INT UNSIGNED NOT NULL, \
-            questionId INT UNSIGNED NOT NULL, \
+            questionnaireId INT UNSIGNED NOT NULL, \
             progress JSON, \
             isCompleted BOOL NOT NULL DEFAULT 0, \
             PRIMARY KEY(id), \
             FOREIGN Key (userId) REFERENCES " + dbcfg.database + "." + dbcfg.users_table + "(id), \
-            FOREIGN Key (assignmentId) REFERENCES " + dbcfg.database + "." + dbcfg.assignment_table + "(id), \
-            FOREIGN Key (questionId) REFERENCES " + dbcfg.database + "." + dbcfg.questionnaire_questions_table + "(id) \
+            FOREIGN Key (questionnaireId) REFERENCES " + dbcfg.database + "." + dbcfg.questionnaire_table + "(id) \
         )");
 
         Logger.info("Success: Database created.");

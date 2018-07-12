@@ -39,7 +39,6 @@ INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes)
 INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (9, 1, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '10');
 */
 //The above is dummy data that should be generated elsewhere during actual use
-var allQuestions = [];
 var progress = [];
 var index = 0;
 
@@ -55,7 +54,9 @@ app.controller("dashboardCtrl", function($scope, $http) {
     $scope.toolType = null;
     $scope.skills = [];
     $scope.studentProfile = null;
+
     $scope.questionnaireTitle = null;
+    $scope.questionnaireId = 0;
     $scope.allQuestions = [];
     $scope.question = null;
     $scope.showBack = false;
@@ -114,9 +115,10 @@ app.controller("dashboardCtrl", function($scope, $http) {
                 'assignmentId': $scope.assignmentSelect.assignmentId
             };
             $http.post('/dashboard/getAllQuestions', data).then(function(res) {
-                allQuestions = res.data.questions;
+                $scope.allQuestions = res.data.questions;
+                $scope.questionnaireId = res.data.id;
 
-                $scope.question = JSON.parse(JSON.stringify(allQuestions[0])); //Get based on progress
+                $scope.question = JSON.parse(JSON.stringify($scope.allQuestions[0])); //Get based on progress
                 progress.push($scope.$$ChildScope.prototype.question);
                 
                 $scope.questionnaireTitle = res.data.name;
@@ -145,9 +147,9 @@ app.controller("dashboardCtrl", function($scope, $http) {
             index++;
             firstQuestion = false;
 
-            for (var i = 0; i < allQuestions.length; i++) 
-                if (allQuestions[i].id == route)
-                    $scope.question = JSON.parse(JSON.stringify(allQuestions[i])); //Deep copy the new question
+            for (var i = 0; i < $scope.allQuestions.length; i++) 
+                if ($scope.allQuestions[i].id == route)
+                    $scope.question = JSON.parse(JSON.stringify($scope.allQuestions[i])); //Deep copy the new question
         } else {
             progress[index] = $scope.$$ChildScope.prototype.question;
             index++;
@@ -156,9 +158,9 @@ app.controller("dashboardCtrl", function($scope, $http) {
             //from the next progress item, invalidate all further progress
             if (progress.length != index && progress[index-1].routes != route) {
                 progress = progress.slice(0, index);
-                for (var i = 0; i < allQuestions.length; i++) 
-                    if (allQuestions[i].id == route)
-                        $scope.question = JSON.parse(JSON.stringify(allQuestions[i])); //Deep copy the new question
+                for (var i = 0; i < $scope.allQuestions.length; i++) 
+                    if ($scope.allQuestions[i].id == route)
+                        $scope.question = JSON.parse(JSON.stringify($scope.allQuestions[i])); //Deep copy the new question
             } else {
                 $scope.question = progress[index];
             }
@@ -173,12 +175,26 @@ app.controller("dashboardCtrl", function($scope, $http) {
         if ($scope.activeStudentFocus != 2)
             $scope.getNextSelected();
         $scope.finishedSurvey = true;
+        $scope.saveProgress();
     }
 
     $scope.closeSurvey = function() {
         progress[index] = $scope.$$ChildScope.prototype.question;
         if ($scope.activeStudentFocus != 2)
             $scope.getNextSelected();
+        $scope.saveProgress();
+    }
+
+    $scope.saveProgress = function() {
+        var data = {
+            'questionnaireId':  $scope.questionnaireId,
+            'progress': progress,
+            'isCompleted': $scope.finishedSurvey
+        };
+        console.log(JSON.stringify(progress));
+        $http.post('/dashboard/saveProgress', data ).then( function(success) {
+        },function(error){
+        });
     }
 
     $scope.toggleButtons = function() {

@@ -394,9 +394,31 @@ module.exports = function (app, iosocket )
 
                 res.json({
                     name: questionnaire[0].name,
+                    id: questionnaire[0].id,
                     questions: questionData
                 });
             });
+        });
+    });
+
+    app.post('/dashboard/saveProgress', function(req,res) {
+        //progress=\'${JSON.stringify(req.body.progress)}\'
+        var q = `UPDATE questionnaire_progress SET isCompleted=${req.body.isCompleted} \
+                 WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId} \
+                 IF @@ROWCOUNT=0  INSERT INTO questionnaire_progress (userId, questionnaireId, progress, isCompleted) \
+                 VALUES (${req.user.id}, ${req.body.questionnaireId}, \'${JSON.stringify(req.body.progress)}\',${req.body.isCompleted}) \
+                 `;/*\
+
+                 ELSE INSERT INTO questionnaire_progress (userId, questionnaireId, progress, isCompleted) \
+                 VALUES (${req.user.id}, ${req.body.questionnaireId}, \'${JSON.stringify(req.body.progress)}\',${req.body.isCompleted})`;
+    */
+
+        console.log(q);
+
+        db.query(q, function(err, data) {
+            if (err)
+                console.log(err);
+            console.log('success!');
         });
     });
 
