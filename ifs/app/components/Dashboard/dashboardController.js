@@ -41,12 +41,12 @@ INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes)
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (7, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '8'); 
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (8, 1, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '9');
 INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (9, 1, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '10');
-INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (10, 2, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '2'); 
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (12, 2, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '3');
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (12, 2, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '4');
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (13, 2, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '5'); 
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (14, 2, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '6');
-INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (15, 2, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '7');
+INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (10, 2, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '11'); 
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (11, 2, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '12');
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (12, 2, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '13');
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (13, 2, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '14'); 
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (14, 2, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '15');
+INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (15, 2, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '16');
 */
 //The above is dummy data that should be generated elsewhere during actual use
 var progress = [];
@@ -67,7 +67,10 @@ app.controller("dashboardCtrl", function($scope, $http) {
 
     $scope.questionnaireTitle = null;
     $scope.questionnaireId = 0;
+    $scope.questionnaires = [];
     $scope.allQuestions = [];
+    $scope.questionBank = [];
+    $scope.allProgress = [];
     $scope.question = null;
     $scope.showBack = false;
     $scope.showNext = true;
@@ -141,11 +144,13 @@ app.controller("dashboardCtrl", function($scope, $http) {
         if (progress.length == index || progress.length - 1 == index) {
             progress[index] = $scope.$$ChildScope.prototype.question;
             index++;
-            firstQuestion = false;
 
-            for (var i = 0; i < $scope.allQuestions.length; i++) 
-                if ($scope.allQuestions[i].id == route)
-                    $scope.question = JSON.parse(JSON.stringify($scope.allQuestions[i])); //Deep copy the new question
+            for (var i = 0; i < $scope.questionBank.length; i++) {
+                if ($scope.questionBank[i].id == route) {
+                    console.log($scope.questionBank[i]);
+                    $scope.question = JSON.parse(JSON.stringify($scope.questionBank[i])); //Deep copy the new question 
+                }
+            }
         } else {
             progress[index] = $scope.$$ChildScope.prototype.question;
             index++;
@@ -154,9 +159,9 @@ app.controller("dashboardCtrl", function($scope, $http) {
             //from the next progress item, invalidate all further progress
             if (progress.length != index && progress[index-1].routes != route) {
                 progress = progress.slice(0, index);
-                for (var i = 0; i < $scope.allQuestions.length; i++) 
-                    if ($scope.allQuestions[i].id == route)
-                        $scope.question = JSON.parse(JSON.stringify($scope.allQuestions[i])); //Deep copy the new question
+                for (var i = 0; i < $scope.questionBank.length; i++) 
+                    if ($scope.questionBank[i].id == route)
+                        $scope.question = JSON.parse(JSON.stringify($scope.questionBank[i])); //Deep copy the new question
             } else {
                 $scope.question = progress[index];
             }
@@ -238,26 +243,34 @@ app.controller("dashboardCtrl", function($scope, $http) {
                 $scope.activeStudentFocus = 2;
         }
 
-        /*
         //Questionnaire data
-        $scope.allQuestions = res.data.q.questions;
-        $scope.questionnaireId = res.data.q.id;
-        progress = res.data.q.progress;
-        index = res.data.q.progressIndex;
-        $scope.finishedSurvey = res.data.q.isCompleted;
-        $scope.questionnaireTitle = res.data.q.name;
+        $scope.questionnaires = res.data.questionnaires;
+        $scope.allQuestions = res.data.questions;
+        $scope.allProgress = res.data.progress;
 
-        if (progress.length > 0) {
-            $scope.question = progress[index];
+        if ($scope.focus) {
+            for (var i = 0; i < $scope.questionnaires.length; i++) {
+                if ($scope.focus.assignmentId == $scope.questionnaires[i].assignmentId) {
+                    $scope.questionnaireId = $scope.questionnaires[i].id;
+                    $scope.questionnaireTitle = $scope.questionnaires[i].name;
+                    for (j = 0; j < $scope.allQuestions.length; j++) {
+                        if ($scope.allQuestions[i][0].questionnaireId == $scope.questionnaireId) {
+                            $scope.questionBank = $scope.allQuestions[i];
+                        }
+                    }
+                }
+            }
+
+            if (progress.length > 0) {
+                $scope.question = progress[index];
+            } else {
+                $scope.question = JSON.parse(JSON.stringify($scope.questionBank[0])); //Get based on progress
+                progress.push($scope.$$ChildScope.prototype.question);
+            }
+
             $scope.toggleButtons();
-        } else {
-            $scope.question = JSON.parse(JSON.stringify($scope.allQuestions[0])); //Get based on progress
-            progress.push($scope.$$ChildScope.prototype.question);
+
+            console.log(res.data);
         }
-
-        $scope.toggleButtons();
-        */
-
-        console.log(res.data);
     });
 });

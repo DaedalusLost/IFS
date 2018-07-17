@@ -346,11 +346,8 @@ module.exports = function (app, iosocket )
      */
     app.get('/dashboard/data', function(req,res) {
         collectDashboardData(req,res, function(req,res,data) {
-            console.log(data.assignments);
-            var result = data.assignments.map(a => a.assignmentId).join();
-            console.log(result);
             //Get questionnaire data
-            var q = `SELECT id, name FROM questionnaire WHERE assignmentId IN ${'('+data.assignments.map(a => a.assignmentId).join()+')'}`;
+            var q = `SELECT assignmentId, id, name FROM questionnaire WHERE assignmentId IN ${'('+data.assignments.map(a => a.assignmentId).join()+')'}`;
             db.query(q, function(err, questionnaires){
                 if(err) {
                     Logger.error(err);
@@ -360,39 +357,48 @@ module.exports = function (app, iosocket )
                 data.questionnaires = questionnaires;
 
                 //Get question data based on the selected questionnaire
-                q = `SELECT id, title, fields, routes, isFirst, isLast FROM questionnaire_questions WHERE questionnaireId IN ${'('+questionnaires.map(a => a.id).join()+')'}`;
+                q = `SELECT * FROM questionnaire_questions WHERE questionnaireId IN ${'('+questionnaires.map(a => a.id).join()+')'}`;
                 db.query(q, function(err, questionData){
-                    console.log('('+questionnaires.map(a => a.id).join()+')');
-                    data.questionData = questionData;
-                    res.json(data);
-                    /*
                     if(err) {
                         Logger.error(err);
                         res.json(data);
                     }
 
-                    var first = questionData.find(function(element) {
-                        return element.isFirst == 1;
-                    });
+                    var idList = questionnaires.map(a => a.id);
+                    var allQuestions = [];
 
-                    if (!first) res.end();
-
-                    questionData.splice(questionData.indexOf(first), 1);
-                    questionData.unshift(first);
-
-                    for (var i = 0; i < questionData.length; i++) {
+                    for (var i = 0; i < questionData.length; i++)
                         questionData[i].fields = JSON.parse(questionData[i].fields);
+
+                    for (var i = 0; i < idList.length; i++) {
+                        allQuestions[i] = [];
+                        for (var j = 0; j < questionData.length; j++) {
+                            if (idList[i] == questionData[j].questionnaireId)
+                                allQuestions[i].push(questionData[j]);
+                        }
+
+                        var first = allQuestions[i].find(function(element) {
+                            return element.isFirst == 1;
+                        });
+
+                        allQuestions[i].splice(allQuestions[i].indexOf(first), 1);
+                        allQuestions[i].unshift(first);
                     }
 
-                    data.q.questions = questionData;
+                    data.questions = allQuestions;
 
                     //Get the users progress for the selected questionnaire
-                    q = `SELECT progressIndex, progress, isCompleted FROM questionnaire_progress WHERE questionnaireId=${questionnaire[0].id}`;
+                    q = `SELECT questionnaireId, progressIndex, progress, isCompleted FROM questionnaire_progress WHERE questionnaireId IN ${'('+idList.join()+')'}`;
                     db.query(q, function(err, progressData) {
                         if(err) {
+                            console.log(q);
                             Logger.error(err);
                             res.json(data);
                         }
+
+                        data.progress = progressData;
+
+                        /*
 
                         if (progressData.length > 0) {
                             data.q.isCompleted = progressData[0].isCompleted;
@@ -403,10 +409,10 @@ module.exports = function (app, iosocket )
                             data.q.progressIndex = 0;
                             data.q.progress = [];
                         }
+                        */
 
                         res.json(data);
                     });
-                    */
                 });
             });   
         });
