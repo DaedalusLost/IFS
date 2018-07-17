@@ -346,7 +346,69 @@ module.exports = function (app, iosocket )
      */
     app.get('/dashboard/data', function(req,res) {
         collectDashboardData(req,res, function(req,res,data) {
-            res.json(data);
+            console.log(data.assignments);
+            var result = data.assignments.map(a => a.assignmentId).join();
+            console.log(result);
+            //Get questionnaire data
+            var q = `SELECT id, name FROM questionnaire WHERE assignmentId IN ${'('+data.assignments.map(a => a.assignmentId).join()+')'}`;
+            db.query(q, function(err, questionnaires){
+                if(err) {
+                    Logger.error(err);
+                    res.json(data);
+                }
+
+                data.questionnaires = questionnaires;
+
+                //Get question data based on the selected questionnaire
+                q = `SELECT id, title, fields, routes, isFirst, isLast FROM questionnaire_questions WHERE questionnaireId IN ${'('+questionnaires.map(a => a.id).join()+')'}`;
+                db.query(q, function(err, questionData){
+                    console.log('('+questionnaires.map(a => a.id).join()+')');
+                    data.questionData = questionData;
+                    res.json(data);
+                    /*
+                    if(err) {
+                        Logger.error(err);
+                        res.json(data);
+                    }
+
+                    var first = questionData.find(function(element) {
+                        return element.isFirst == 1;
+                    });
+
+                    if (!first) res.end();
+
+                    questionData.splice(questionData.indexOf(first), 1);
+                    questionData.unshift(first);
+
+                    for (var i = 0; i < questionData.length; i++) {
+                        questionData[i].fields = JSON.parse(questionData[i].fields);
+                    }
+
+                    data.q.questions = questionData;
+
+                    //Get the users progress for the selected questionnaire
+                    q = `SELECT progressIndex, progress, isCompleted FROM questionnaire_progress WHERE questionnaireId=${questionnaire[0].id}`;
+                    db.query(q, function(err, progressData) {
+                        if(err) {
+                            Logger.error(err);
+                            res.json(data);
+                        }
+
+                        if (progressData.length > 0) {
+                            data.q.isCompleted = progressData[0].isCompleted;
+                            data.q.progressIndex = progressData[0].progressIndex;
+                            data.q.progress = JSON.parse(progressData[0].progress);
+                        } else {
+                            data.q.isCompleted = 0;
+                            data.q.progressIndex = 0;
+                            data.q.progress = [];
+                        }
+
+                        res.json(data);
+                    });
+                    */
+                });
+            });   
         });
     });
 
@@ -394,14 +456,25 @@ module.exports = function (app, iosocket )
                         questionData[i].fields = JSON.parse(questionData[i].fields);
                     }
 
-                    res.json({
-                        name: questionnaire[0].name,
-                        id: questionnaire[0].id,
-                        isCompleted: progressData[0].isCompleted,
-                        index: progressData[0].progressIndex,
-                        progress: JSON.parse(progressData[0].progress),
-                        questions: questionData
-                    });
+                    if (progressData.length > 0) {
+                        res.json({
+                            name: questionnaire[0].name,
+                            id: questionnaire[0].id,
+                            isCompleted: progressData[0].isCompleted,
+                            progressIndex: progressData[0].progressIndex,
+                            progress: JSON.parse(progressData[0].progress),
+                            questions: questionData
+                        });
+                    } else {
+                        res.json({
+                            name: questionnaire[0].name,
+                            id: questionnaire[0].id,
+                            isCompleted: 0,
+                            progressIndex: 0,
+                            progress: [],
+                            questions: questionData
+                        });
+                    }
                 });
             });
         });
@@ -412,16 +485,26 @@ module.exports = function (app, iosocket )
         
         db.query(q, function(err, id) {
             if (id.length == 0) {
-                 q = `INSERT INTO questionnaire_progress (userId, questionnaireId, progress, isCompleted) \
-                 VALUES (${req.user.id}, ${req.body.questionnaireId}, \'${JSON.stringify(req.body.progress)}\',${req.body.isCompleted})`;
+                 q = `INSERT INTO questionnaire_progress (userId, questionnaireId, progress, progressIndex, isCompleted) \
+                 VALUES (${req.user.id}, ${req.body.questionnaireId}, \'${JSON.stringify(req.body.progress)}\',${req.body.progressIndex}, ${req.body.isCompleted})`;
                  db.query(q, function(err, data) {
+                    if(err) {
+                        Logger.error(err);
+                        res.end();
+                    }
                  });
             } else {
-                 q = `UPDATE questionnaire_progress SET isCompleted=${req.body.isCompleted}, progress=\'${JSON.stringify(req.body.progress)}\' \
+                console.log(req.body.progressIndex);
+                 q = `UPDATE questionnaire_progress SET isCompleted=${req.body.isCompleted}, progressIndex=${req.body.progressIndex} ,progress=\'${JSON.stringify(req.body.progress)}\' \
                  WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId}`;
                  db.query(q, function(err, data) {
+                    if(err) {
+                        Logger.error(err);
+                        res.end();
+                    }
                  }); 
             }
+            res.end();
         });
     });
 }

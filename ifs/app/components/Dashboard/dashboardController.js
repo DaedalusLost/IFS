@@ -28,6 +28,10 @@ let q3 = {
     isLast: true
 };
 /*
+DELETE FROM questionnaire_questions;
+DELETE FROM questionnaire;
+INSERT INTO questionnaire (id, assignmentId, name) VALUES (1, 1, 'Data Structures Questionnaire');
+INSERT INTO questionnaire (id, assignmentId, name) VALUES (2, 2, 'Angel of Death Questionnaire');
 INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (1, 1, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '2'); 
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (2, 1, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '3');
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (3, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '4');
@@ -37,6 +41,12 @@ INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes)
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (7, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '8'); 
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (8, 1, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '9');
 INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (9, 1, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '10');
+INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (10, 2, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '2'); 
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (12, 2, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '3');
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (12, 2, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '4');
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (13, 2, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '5'); 
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (14, 2, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '6');
+INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (15, 2, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": [{"label": "Option A"}, {"label": "Option B"}, {"label": "Option C"}]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '7');
 */
 //The above is dummy data that should be generated elsewhere during actual use
 var progress = [];
@@ -91,6 +101,7 @@ app.controller("dashboardCtrl", function($scope, $http) {
      * This can then be saved as today's focus for the session
      */
     $scope.setSessionData = function() {
+        console.log('setSessionData');
         if ($scope.hasFocusItem() ) {
             var data = {
                 'focusCourseId':  $scope.assignmentSelect.courseId,
@@ -107,36 +118,12 @@ app.controller("dashboardCtrl", function($scope, $http) {
     }
 
     $scope.showSurvey = function() {
-        if (progress.length > 0) {
-            $scope.question = progress[index];
+        if (!$scope.finishedSurvey) {  
             UIkit.modal('#questionnaireModal').show();
         } else {
-            var data = {
-                'assignmentId': $scope.assignmentSelect.assignmentId
-            };
-            $http.post('/dashboard/getAllQuestions', data).then(function(res) {
-                $scope.allQuestions = res.data.questions;
-                $scope.questionnaireId = res.data.id;
-                progress = res.data.progress;
-                index = res.data.index;
-                $scope.finishedSurvey = res.data.isCompleted;
-
-                if (!$scope.finishedSurvey) {
-                    if (progress.length > 0) {
-                        $scope.question = progress[index];
-                    } else {
-                        $scope.question = JSON.parse(JSON.stringify($scope.allQuestions[0])); //Get based on progress
-                        progress.push($scope.$$ChildScope.prototype.question);
-                    }
-                    
-                    
-                    $scope.questionnaireTitle = res.data.name;
-                    UIkit.modal('#questionnaireModal').show();
-                }
-            }).catch(function(err) {
-                console.log(err);
-            });
-        }   
+            if ($scope.activeStudentFocus != 2)
+                $scope.getNextSelected();
+        }
     }
 
     $scope.prevQuestion = function() {
@@ -147,7 +134,6 @@ app.controller("dashboardCtrl", function($scope, $http) {
     }
 
     $scope.nextQuestion = function() {
-        //console.log($scope.question);
         //Actually figure out routes later, for now just use what's given
         var route = $scope.question.routes;
 
@@ -199,9 +185,9 @@ app.controller("dashboardCtrl", function($scope, $http) {
         var data = {
             'questionnaireId':  $scope.questionnaireId,
             'progress': progress,
+            'progressIndex': index,
             'isCompleted': $scope.finishedSurvey
         };
-        console.log(JSON.stringify(progress));
         $http.post('/dashboard/saveProgress', data ).then( function(res) {
         },function(error){
         });
@@ -251,5 +237,27 @@ app.controller("dashboardCtrl", function($scope, $http) {
             if($scope.hasFocusItem())
                 $scope.activeStudentFocus = 2;
         }
+
+        /*
+        //Questionnaire data
+        $scope.allQuestions = res.data.q.questions;
+        $scope.questionnaireId = res.data.q.id;
+        progress = res.data.q.progress;
+        index = res.data.q.progressIndex;
+        $scope.finishedSurvey = res.data.q.isCompleted;
+        $scope.questionnaireTitle = res.data.q.name;
+
+        if (progress.length > 0) {
+            $scope.question = progress[index];
+            $scope.toggleButtons();
+        } else {
+            $scope.question = JSON.parse(JSON.stringify($scope.allQuestions[0])); //Get based on progress
+            progress.push($scope.$$ChildScope.prototype.question);
+        }
+
+        $scope.toggleButtons();
+        */
+
+        console.log(res.data);
     });
 });
