@@ -7,7 +7,8 @@ app.controller( "toolCtrl", function($scope, $http) {
     $http.get('/tool/data').then( function(res) {
         // NOTE: This uses a second route to load data into controller.
         // Main Layout information and more static information is loaded via Express routes.
-        $scope.toolList = res.data;
+        //$scope.toolList = res.data;
+        console.log(res.data);
     });
 });
 

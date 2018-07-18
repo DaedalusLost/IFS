@@ -345,23 +345,30 @@ module.exports = function (app, iosocket )
      * @return {[type]}      [description]
      */
     app.get('/dashboard/data', function(req,res) {
+        console.log('accessing dashboard data');
         collectDashboardData(req,res, function(req,res,data) {
             //Get questionnaire data
             var q = `SELECT assignmentId, id, name FROM questionnaire WHERE assignmentId IN ${'('+data.assignments.map(a => a.assignmentId).join()+')'}`;
-            db.query(q, function(err, questionnaires){
+            db.query(q, [], function(err, questionnaires){
+                console.log('Query 1 succeeded');
                 if(err) {
                     Logger.error(err);
                     res.json(data);
+                    return;
                 }
 
                 data.questionnaires = questionnaires;
 
                 //Get question data based on the selected questionnaire
                 q = `SELECT * FROM questionnaire_questions WHERE questionnaireId IN ${'('+questionnaires.map(a => a.id).join()+')'}`;
-                db.query(q, function(err, questionData){
+                console.log('Entering Query 2');
+                console.log(q);
+                db.query(q, [], function(err, questionData){
+                    console.log('Query 2 succeeded');
                     if(err) {
                         Logger.error(err);
                         res.json(data);
+                        return;
                     }
 
                     var idList = questionnaires.map(a => a.id);
@@ -389,11 +396,12 @@ module.exports = function (app, iosocket )
 
                     //Get the users progress for the selected questionnaire
                     q = `SELECT questionnaireId, progressIndex, progress, isCompleted FROM questionnaire_progress WHERE questionnaireId IN ${'('+idList.join()+')'}`;
-                    db.query(q, function(err, progressData) {
+                    db.query(q, [], function(err, progressData) {
+                        console.log('Query 3 succeeded');
                         if(err) {
-                            console.log(q);
                             Logger.error(err);
                             res.json(data);
+                            return;
                         }
 
                         for (var i = 0; i < progressData.length; i++) {

@@ -126,6 +126,7 @@ app.controller("dashboardCtrl", function($scope, $http) {
         if ($scope.assignmentSelect.assignmentId != $scope.questionnaireId) {
             progress = [];
             index = 0;
+            $scope.finishedSurvey = false;
         }
 
         for (var i = 0; i < $scope.questionnaires.length; i++) {
