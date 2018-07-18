@@ -121,7 +121,51 @@ app.controller("dashboardCtrl", function($scope, $http) {
     }
 
     $scope.showSurvey = function() {
-        if (!$scope.finishedSurvey) {  
+        console.log($scope.finishedSurvey);
+
+        if ($scope.assignmentSelect.assignmentId != $scope.questionnaireId) {
+            progress = [];
+            index = 0;
+        }
+
+        for (var i = 0; i < $scope.questionnaires.length; i++) {
+            if ($scope.assignmentSelect.assignmentId == $scope.questionnaires[i].assignmentId) {
+                $scope.questionnaireId = $scope.questionnaires[i].id;
+                $scope.questionnaireTitle = $scope.questionnaires[i].name;
+                for (j = 0; j < $scope.allQuestions.length; j++) {
+                    if ($scope.allQuestions[j][0].questionnaireId == $scope.questionnaireId) {
+                        $scope.questionBank = $scope.allQuestions[j];
+                    }
+                }
+                for (j = 0; j < $scope.allProgress.length; j++) {
+                    if ($scope.allProgress[j].questionnaireId == $scope.questionnaireId) {
+                        progress = $scope.allProgress[j].progress;
+                        index = $scope.allProgress[j].progressIndex;
+                        $scope.finishedSurvey = $scope.allProgress[j].isCompleted;
+                    }
+                }
+            }
+        }
+
+        if (!$scope.finishedSurvey) {
+            if (progress.length > 0) {
+                $scope.question = progress[index];
+            } else {
+                $scope.question = JSON.parse(JSON.stringify($scope.questionBank[0])); //Get based on progress
+                progress.push($scope.$$ChildScope.prototype.question);
+            }
+
+            $scope.toggleButtons();
+
+            var data = {
+                'questionnaireId':  $scope.questionnaireId,
+                'progress': progress,
+                'progressIndex': index,
+                'isCompleted': $scope.finishedSurvey
+            };
+
+            console.log(data);
+
             UIkit.modal('#questionnaireModal').show();
         } else {
             if ($scope.activeStudentFocus != 2)
@@ -147,7 +191,6 @@ app.controller("dashboardCtrl", function($scope, $http) {
 
             for (var i = 0; i < $scope.questionBank.length; i++) {
                 if ($scope.questionBank[i].id == route) {
-                    console.log($scope.questionBank[i]);
                     $scope.question = JSON.parse(JSON.stringify($scope.questionBank[i])); //Deep copy the new question 
                 }
             }
@@ -193,7 +236,26 @@ app.controller("dashboardCtrl", function($scope, $http) {
             'progressIndex': index,
             'isCompleted': $scope.finishedSurvey
         };
-        $http.post('/dashboard/saveProgress', data ).then( function(res) {
+
+        var exists = false;
+
+        //Save the current progress to the list of all progress
+        for (j = 0; j < $scope.allProgress.length; j++) {
+            if ($scope.allProgress[j].questionnaireId == $scope.questionnaireId) {
+                $scope.allProgress[j].progress = progress;
+                $scope.allProgress[j].progressIndex = index;
+                $scope.allProgress[j].isCompleted = $scope.finishedSurvey;
+                exists = true;
+            }
+        }
+
+        if (!exists) {
+            $scope.allProgress.push(data);
+        }
+
+        console.log($scope.allProgress);
+
+        $http.post('/dashboard/saveProgress', data).then(function(res) {
         },function(error){
         });
     }
@@ -254,23 +316,31 @@ app.controller("dashboardCtrl", function($scope, $http) {
                     $scope.questionnaireId = $scope.questionnaires[i].id;
                     $scope.questionnaireTitle = $scope.questionnaires[i].name;
                     for (j = 0; j < $scope.allQuestions.length; j++) {
-                        if ($scope.allQuestions[i][0].questionnaireId == $scope.questionnaireId) {
-                            $scope.questionBank = $scope.allQuestions[i];
+                        if ($scope.allQuestions[j][0].questionnaireId == $scope.questionnaireId) {
+                            $scope.questionBank = $scope.allQuestions[j];
+                        }
+                    }
+                    for (j = 0; j < $scope.allProgress.length; j++) {
+                        if ($scope.allProgress[j].questionnaireId == $scope.questionnaireId) {
+                            progress = $scope.allProgress[j].progress;
+                            index = $scope.allProgress[j].progressIndex;
+                            $scope.finishedSurvey = $scope.allProgress[j].isCompleted;
                         }
                     }
                 }
             }
 
-            if (progress.length > 0) {
-                $scope.question = progress[index];
-            } else {
-                $scope.question = JSON.parse(JSON.stringify($scope.questionBank[0])); //Get based on progress
-                progress.push($scope.$$ChildScope.prototype.question);
-            }
+            if (!$scope.finishedSurvey) {
+                if (progress.length > 0) {
+                    $scope.question = progress[index];
+                } else {
+                    $scope.question = JSON.parse(JSON.stringify($scope.questionBank[0])); //Get based on progress
+                    progress.push($scope.$$ChildScope.prototype.question);
+                }
 
-            $scope.toggleButtons();
-
-            console.log(res.data);
+                $scope.toggleButtons();  
+            }     
         }
+        console.log(res.data);
     });
 });

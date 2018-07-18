@@ -396,6 +396,10 @@ module.exports = function (app, iosocket )
                             res.json(data);
                         }
 
+                        for (var i = 0; i < progressData.length; i++) {
+                            progressData[i].progress = JSON.parse(progressData[i].progress);
+                        }
+
                         data.progress = progressData;
 
                         /*
@@ -491,24 +495,23 @@ module.exports = function (app, iosocket )
         
         db.query(q, function(err, id) {
             if (id.length == 0) {
-                 q = `INSERT INTO questionnaire_progress (userId, questionnaireId, progress, progressIndex, isCompleted) \
-                 VALUES (${req.user.id}, ${req.body.questionnaireId}, \'${JSON.stringify(req.body.progress)}\',${req.body.progressIndex}, ${req.body.isCompleted})`;
-                 db.query(q, function(err, data) {
+                q = `INSERT INTO questionnaire_progress (userId, questionnaireId, progress, progressIndex, isCompleted) \
+                VALUES (${req.user.id}, ${req.body.questionnaireId}, \'${JSON.stringify(req.body.progress)}\',${req.body.progressIndex}, ${req.body.isCompleted})`;
+                db.query(q, function(err, data) {
                     if(err) {
                         Logger.error(err);
                         res.end();
                     }
-                 });
+                });
             } else {
-                console.log(req.body.progressIndex);
-                 q = `UPDATE questionnaire_progress SET isCompleted=${req.body.isCompleted}, progressIndex=${req.body.progressIndex} ,progress=\'${JSON.stringify(req.body.progress)}\' \
-                 WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId}`;
-                 db.query(q, function(err, data) {
+                q = `UPDATE questionnaire_progress SET isCompleted=${req.body.isCompleted}, progressIndex=${req.body.progressIndex} ,progress=\'${JSON.stringify(req.body.progress)}\' \
+                WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId}`;
+                db.query(q, function(err, data) {
                     if(err) {
                         Logger.error(err);
                         res.end();
                     }
-                 }); 
+                }); 
             }
             res.end();
         });
