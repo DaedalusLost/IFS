@@ -10,7 +10,7 @@ div(ng-if="field.type == 'checkbox'").uk-margin
         br
 
 div(ng-if="field.type == 'select'").uk-margin
-    select(ng-model="field.model" ng-options="option.label for option in field.options").uk-select.uk-form-width-small
+    select(ng-model="field.model" ng-options="option for option in field.options").uk-select.uk-form-width-small
     label(style="margin-bottom:2px; margin-left:5px; font-weight:400; font-size: 1.3rem").uk-text-bottom {{field.label}}
 
 div(ng-if="field.type == 'text'").uk-margin
