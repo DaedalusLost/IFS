@@ -18,8 +18,6 @@ INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes)
 INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (15, 2, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "required": "true", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '{"options": [{"toMatch": "Option A","outcome": "Option A Outcome","id": "16"},{"toMatch": "Option B","outcome": "Option B Outcome","id": "16"},{"toMatch": "Option C","outcome": "opC Outcome","id": "16"}], "default": {"outcome": "defaultOutcome", "id": "16"}}');
 */
 
-//"options": [{"toMatch": "Option A","outcome": "Option A Outcome","id": "3"},{"toMatch": "Option B","outcome": "Option B Outcome","id": "3"},{"toMatch": "Option C","outcome": "opC Outcome","id": "3"}]
-
 //The above is dummy data that can be inserted into MySQL manually to test functionality
 
 var progress = [];
@@ -38,14 +36,16 @@ app.controller("dashboardCtrl", function($scope, $http) {
     $scope.skills = [];
     $scope.studentProfile = null;
 
-    //Questionnaire variables
-    $scope.questionnaireTitle = null;
-    $scope.questionnaireId = 0;
+    //Questionnaire variables for storing information used in this script
     $scope.questionnaires = [];
     $scope.allQuestions = [];
     $scope.questionBank = [];
     $scope.allProgress = [];
     $scope.question = null;
+
+    //Data for display purposes
+    $scope.questionnaireTitle = null;
+    $scope.questionnaireId = 0;
     $scope.showBack = false;
     $scope.showNext = true;
     $scope.showFinish = false;
