@@ -1,22 +1,24 @@
 /*
 INSERT INTO questionnaire (id, assignmentId, name) VALUES (1, 1, 'Data Structures Questionnaire');
 INSERT INTO questionnaire (id, assignmentId, name) VALUES (2, 2, 'Angel of Death Questionnaire');
-INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (1, 1, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "2"}}'); 
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (2, 1, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "3"}}');
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (3, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '{"default": {"outcome": "defaultOutcome", "id": "4"}}');
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (4, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "5"}}'); 
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (5, 1, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "6"}}');
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (6, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '{"default": {"outcome": "defaultOutcome", "id": "7"}}');
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (7, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "8"}}'); 
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (8, 1, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "9"}}');
-INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (9, 1, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '{"default": {"outcome": "defaultOutcome", "id": "10"}}');
-INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (10, 2, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "11"}}'); 
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (11, 2, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "12"}}');
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (12, 2, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '{"default": {"outcome": "defaultOutcome", "id": "13"}}');
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (13, 2, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "14"}}'); 
-INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (14, 2, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "15"}}');
-INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (15, 2, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '{"default": {"outcome": "defaultOutcome", "id": "16"}}');
+INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (1, 1, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "required": "true", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '{"options": [{"toMatch": "opA","outcome": "opA Outcome","id": "2"},{"toMatch": "opB","outcome": "opB Outcome","id": "2"},{"toMatch": "opC","outcome": "opC Outcome","id": "2"}], "default": {"outcome": "defaultOutcome", "id": "2"}}'); 
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (2, 1, 'Checkboxes example:', '[{"type": "checkbox", "required": "true", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "3"}}');
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (3, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "required": "true", "label": "Select", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '{"options": [{"toMatch": "Option A","outcome": "Option A Outcome","id": "4"},{"toMatch": "Option B","outcome": "Option B Outcome","id": "4"},{"toMatch": "Option C","outcome": "opC Outcome","id": "4"}], "default": {"outcome": "defaultOutcome", "id": "4"}}');
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (4, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "required": "true", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '{"options": [{"toMatch": "opA","outcome": "opA Outcome","id": "5"},{"toMatch": "opB","outcome": "opB Outcome","id": "5"},{"toMatch": "opC","outcome": "opC Outcome","id": "5"}], "default": {"outcome": "defaultOutcome", "id": "5"}}'); 
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (5, 1, 'Checkboxes example:', '[{"type": "checkbox", "required": "true", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "6"}}');
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (6, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "required": "true", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '{"options": [{"toMatch": "Option A","outcome": "Option A Outcome","id": "7"},{"toMatch": "Option B","outcome": "Option B Outcome","id": "7"},{"toMatch": "Option C","outcome": "opC Outcome","id": "7"}], "default": {"outcome": "defaultOutcome", "id": "7"}}');
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (7, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "required": "true", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '{"options": [{"toMatch": "opA","outcome": "opA Outcome","id": "8"},{"toMatch": "opB","outcome": "opB Outcome","id": "8"},{"toMatch": "opC","outcome": "opC Outcome","id": "8"}], "default": {"outcome": "defaultOutcome", "id": "8"}}'); 
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (8, 1, 'Checkboxes example:', '[{"type": "checkbox", "required": "true", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "9"}}');
+INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (9, 1, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "required": "true", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '{"options": [{"toMatch": "Option A","outcome": "Option A Outcome","id": "10"},{"toMatch": "Option B","outcome": "Option B Outcome","id": "10"},{"toMatch": "Option C","outcome": "opC Outcome","id": "10"}], "default": {"outcome": "defaultOutcome", "id": "10"}}');
+INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (10, 2, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "required": "true", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '{"options": [{"toMatch": "opA","outcome": "opA Outcome","id": "11"},{"toMatch": "opB","outcome": "opB Outcome","id": "11"},{"toMatch": "opC","outcome": "opC Outcome","id": "11"}], "default": {"outcome": "defaultOutcome", "id": "11"}}'); 
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (11, 2, 'Checkboxes example:', '[{"type": "checkbox", "required": "true", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "12"}}');
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (12, 2, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "required": "true", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '{"options": [{"toMatch": "Option A","outcome": "Option A Outcome","id": "13"},{"toMatch": "Option B","outcome": "Option B Outcome","id": "13"},{"toMatch": "Option C","outcome": "opC Outcome","id": "13"}], "default": {"outcome": "defaultOutcome", "id": "13"}}');
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (13, 2, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "required": "true", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '{"options": [{"toMatch": "opA","outcome": "opA Outcome","id": "14"},{"toMatch": "opB","outcome": "opB Outcome","id": "14"},{"toMatch": "opC","outcome": "opC Outcome","id": "14"}], "default": {"outcome": "defaultOutcome", "id": "14"}}'); 
+INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (14, 2, 'Checkboxes example:', '[{"type": "checkbox", "required": "true", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '{"default": {"outcome": "defaultOutcome", "id": "15"}}');
+INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (15, 2, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "required": "true", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '{"options": [{"toMatch": "Option A","outcome": "Option A Outcome","id": "16"},{"toMatch": "Option B","outcome": "Option B Outcome","id": "16"},{"toMatch": "Option C","outcome": "opC Outcome","id": "16"}], "default": {"outcome": "defaultOutcome", "id": "16"}}');
 */
+
+//"options": [{"toMatch": "Option A","outcome": "Option A Outcome","id": "3"},{"toMatch": "Option B","outcome": "Option B Outcome","id": "3"},{"toMatch": "Option C","outcome": "opC Outcome","id": "3"}]
 
 //The above is dummy data that can be inserted into MySQL manually to test functionality
 
@@ -121,7 +123,7 @@ app.controller("dashboardCtrl", function($scope, $http) {
             }
         }
 
-        if (!$scope.finishedSurvey) {
+        if (!$scope.finishedSurvey && $scope.questionnaireId) {
             //Retrieve the question to be displayed, either from progress or from a deep copy from the question brank
             if (progress.length > 0) {
                 $scope.question = progress[index];
@@ -148,29 +150,23 @@ app.controller("dashboardCtrl", function($scope, $http) {
     }
 
     $scope.nextQuestion = function() {
-        //Actually figure out routes later, for now just use what's given
+        //Determine the appropriate route to take for the next question
         var routeId = 0;
         var outcome = null;
 
         if ($scope.question.fields[0].type == "select" ||$scope.question.fields[0].type == "radio") {
-            var routes = $scope.question.routes;
+            //Search through the options and try to match the model to find the route id
+            for (let option of $scope.question.routes.options) {
+                if ($scope.question.fields[0].model == option.toMatch) {
+                    outcome = option.outcome;
+                    routeId = option.id;
+                }
+            }
 
-            /*
-            some pseudo for an idea. option would be : [
-                {toMatch: "matchModelWithMe", outcome: "someOutcome", id: "#"},
-                {...}, {...}, {...}, ...
-            ]
-
-            for option in routes.options
-                if model == option.toMatch
-                    outcome = option.outcome
-                    routeId = option.id
-            */
-
-            //IF there is no id found using the above determination, use the default (usually means no selection)
+            //If there is no id found using the above determination, use the default (usually means no selection)
             if (!routeId) {
-                routeId = routes.default.id;
-                outcome = routes.default.outcome;
+                routeId = $scope.question.routes.default.id;
+                outcome = $scope.question.routes.default.outcome;
             }
         } else if ($scope.question.fields[0].type == "checkbox") {
             //Checkboxes and have no route determination yet, and simply use the default route
@@ -331,7 +327,7 @@ app.controller("dashboardCtrl", function($scope, $http) {
                 }
             }
 
-            if (!$scope.finishedSurvey) {
+            if (!$scope.finishedSurvey && $scope.questionnaireId) {
                 //Retrieve the question to be displayed, either from progress or from a deep copy from the question brank
                 if (progress.length > 0) {
                     $scope.question = progress[index];
@@ -343,5 +339,6 @@ app.controller("dashboardCtrl", function($scope, $http) {
                 $scope.toggleButtons();  
             }
         }
+        console.log(res.data);
     });
 });

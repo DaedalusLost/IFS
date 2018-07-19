@@ -27,9 +27,9 @@ div#studentFocus
         div.uk-card-header
             h2.uk-card-title Current Focus:
         div.uk-card-body
-            div(uk-alert ng-show="!finishedSurvey")
+            div(uk-alert ng-show="!finishedSurvey&& questionnaireId")
                 p
-                    | You have not complete the suggested activities survey. Please click 
+                    | You have not completed the suggested activities survey. Please click 
                     a(ng-click="showSurvey()") here
                     |  to complete it.
             div(ng-show="finishedSurvey")#suggestedActivities

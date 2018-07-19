@@ -1,5 +1,4 @@
 div(ng-if="field.type == 'radio'").uk-margin
-    - var count = 0;
     div(ng-repeat="option in field.options")
         label(style="font-weight:400").uk-text-bottom #[input(type="radio" ng-model="field.model" ng-value="option.value").uk-radio] {{option.label}}
         br

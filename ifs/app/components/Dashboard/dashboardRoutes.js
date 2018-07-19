@@ -359,6 +359,14 @@ module.exports = function (app, iosocket )
                 data.questionnaires = questionnaires;
                 var idList = questionnaires.map(a => a.id);
 
+                //If there are no questionnaires, send default data
+                if (questionnaires.length == 0) {
+                    data.questions = [];
+                    data.progress = [];
+                    res.json(data);
+                    return;
+                }
+
                 //Get all questions from all of the previously retrieved questionnaires list
                 q = `SELECT * FROM questionnaire_questions WHERE questionnaireId IN ${'('+idList.join()+')'}`;
                 db.query(q, [], function(err, questionData){
@@ -371,6 +379,7 @@ module.exports = function (app, iosocket )
                     //Declare the array to be sent to the client, and parse all json text
                     var allQuestions = [];
                     for (var i = 0; i < questionData.length; i++) {
+                        console.log(questionData[i].fields);
                         questionData[i].fields = JSON.parse(questionData[i].fields);
                         questionData[i].routes = JSON.parse(questionData[i].routes);
                     }
