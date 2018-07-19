@@ -1,35 +1,4 @@
-let q1 = {
-    title: 'Radio buttons example:',
-    fields: [
-        {type: 'radio', model: 'radioButtons', options: [
-            {label: 'Option A', value: 'opA'},
-            {label: 'Option B', value: 'opB'},
-            {label: 'Option C', value: 'opC'}
-        ]}
-    ],
-    isFirst: true
-};
-let q2 = {
-    title: 'Checkboxes example:',
-    fields: [
-        {type: 'checkbox', options: [
-            {label: 'Option A', model: 'opAmodel'},
-            {label: 'Option B', model: 'opBmodel'},
-            {label: 'Option C', model: 'opCmodel'}
-        ]}
-    ]
-};
-let q3 = {
-    title: 'Multiple inputs example:',
-    fields: [
-        {type: 'select', model: 'selectField', label: 'Select', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]},
-        {type: 'text', label: 'Label', placeholder: 'Placeholder', id: 'textID', model: ''}
-    ],
-    isLast: true
-};
 /*
-DELETE FROM questionnaire_questions;
-DELETE FROM questionnaire;
 INSERT INTO questionnaire (id, assignmentId, name) VALUES (1, 1, 'Data Structures Questionnaire');
 INSERT INTO questionnaire (id, assignmentId, name) VALUES (2, 2, 'Angel of Death Questionnaire');
 INSERT INTO questionnaire_questions (id, questionnaireId, isFirst, title, fields, routes) VALUES (1, 1, 1, 'Radio buttons example:', '[{"type": "radio", "model": "radioButtons", "options": [{"label": "Option A", "value": "opA"},{"label": "Option B", "value": "opB"},{"label": "Option C", "value": "opC"}]}]', '2'); 
@@ -48,7 +17,9 @@ INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes)
 INSERT INTO questionnaire_questions (id, questionnaireId, title, fields, routes) VALUES (14, 2, 'Checkboxes example:', '[{"type": "checkbox", "options": [{"label": "Option A", "model": "opAmodel"},{"label": "Option B", "model": "opBmodel"},{"label": "Option C", "model": "opCmodel"}]}]', '15');
 INSERT INTO questionnaire_questions (id, questionnaireId, isLast, title, fields, routes) VALUES (15, 2, 1, 'Multiple inputs example:', '[{"type": "select", "model": "selectField", "label": "Select", "options": ["Option A", "Option B", "Option C"]},{"type": "text", "label": "Label", "placeholder": "Placeholder", "id": "textID", "model": ""}]', '16');
 */
-//The above is dummy data that should be generated elsewhere during actual use
+
+//The above is dummy data that can be inserted into MySQL manually to test functionality
+
 var progress = [];
 var index = 0;
 
@@ -65,6 +36,7 @@ app.controller("dashboardCtrl", function($scope, $http) {
     $scope.skills = [];
     $scope.studentProfile = null;
 
+    //Questionnaire variables
     $scope.questionnaireTitle = null;
     $scope.questionnaireId = 0;
     $scope.questionnaires = [];
@@ -104,7 +76,6 @@ app.controller("dashboardCtrl", function($scope, $http) {
      * This can then be saved as today's focus for the session
      */
     $scope.setSessionData = function() {
-        console.log('setSessionData');
         if ($scope.hasFocusItem() ) {
             var data = {
                 'focusCourseId':  $scope.assignmentSelect.courseId,
@@ -121,23 +92,25 @@ app.controller("dashboardCtrl", function($scope, $http) {
     }
 
     $scope.showSurvey = function() {
-        console.log($scope.finishedSurvey);
+        //Reset the progress and associated variables before determining the new set
+        progress = [];
+        index = 0;
+        $scope.finishedSurvey = false;
 
-        if ($scope.assignmentSelect.assignmentId != $scope.questionnaireId) {
-            progress = [];
-            index = 0;
-            $scope.finishedSurvey = false;
-        }
-
+        //Find the questionnaire to show based on the currently selected assignment
         for (var i = 0; i < $scope.questionnaires.length; i++) {
             if ($scope.assignmentSelect.assignmentId == $scope.questionnaires[i].assignmentId) {
                 $scope.questionnaireId = $scope.questionnaires[i].id;
                 $scope.questionnaireTitle = $scope.questionnaires[i].name;
+
+                //Find the question bank to pull new questions from based on the current questionnaire
                 for (j = 0; j < $scope.allQuestions.length; j++) {
                     if ($scope.allQuestions[j][0].questionnaireId == $scope.questionnaireId) {
                         $scope.questionBank = $scope.allQuestions[j];
                     }
                 }
+
+                //Find the progress (if applicable) connected to the current questionnaire
                 for (j = 0; j < $scope.allProgress.length; j++) {
                     if ($scope.allProgress[j].questionnaireId == $scope.questionnaireId) {
                         progress = $scope.allProgress[j].progress;
@@ -149,32 +122,25 @@ app.controller("dashboardCtrl", function($scope, $http) {
         }
 
         if (!$scope.finishedSurvey) {
+            //Retrieve the question to be displayed, either from progress or from a deep copy from the question brank
             if (progress.length > 0) {
                 $scope.question = progress[index];
             } else {
-                $scope.question = JSON.parse(JSON.stringify($scope.questionBank[0])); //Get based on progress
+                $scope.question = JSON.parse(JSON.stringify($scope.questionBank[0]));
                 progress.push($scope.$$ChildScope.prototype.question);
             }
 
             $scope.toggleButtons();
-
-            var data = {
-                'questionnaireId':  $scope.questionnaireId,
-                'progress': progress,
-                'progressIndex': index,
-                'isCompleted': $scope.finishedSurvey
-            };
-
-            console.log(data);
-
             UIkit.modal('#questionnaireModal').show();
         } 
         
+        //Advance to the task list page regardless of being finished
         if ($scope.activeStudentFocus != 2)
             $scope.getNextSelected();
     }
 
     $scope.prevQuestion = function() {
+        //Store the current question in the progress list, and then iterate to the previous question in the list
         progress[index] = $scope.$$ChildScope.prototype.question;
         index--;
         $scope.question = progress[index];
@@ -185,62 +151,51 @@ app.controller("dashboardCtrl", function($scope, $http) {
         //Actually figure out routes later, for now just use what's given
         var route = $scope.question.routes;
 
+        //Save the current progress, and move to the next item in the lsit
+        progress[index] = $scope.$$ChildScope.prototype.question;
+        index++;
+
         //Serve the next question and store progress appropriately
-        if (progress.length == index || progress.length - 1 == index) {
-            progress[index] = $scope.$$ChildScope.prototype.question;
-            index++;
-
-            for (var i = 0; i < $scope.questionBank.length; i++) {
-                if ($scope.questionBank[i].id == route) {
-                    $scope.question = JSON.parse(JSON.stringify($scope.questionBank[i])); //Deep copy the new question 
-                }
-            }
+        if (progress.length-1 == index || progress.length == index) { //End or beginning of questionnaire, respectively
+            //Determine the next question from the id given by the route, and serve a deep copy of the new question
+            for (var i = 0; i < $scope.questionBank.length; i++)
+                if ($scope.questionBank[i].id == route)
+                    $scope.question = JSON.parse(JSON.stringify($scope.questionBank[i]));
         } else {
-            progress[index] = $scope.$$ChildScope.prototype.question;
-            index++;
-
             //If in the middle of the questionnaire and the determined route is different
             //from the next progress item, invalidate all further progress
             if (progress.length != index && progress[index-1].routes != route) {
                 progress = progress.slice(0, index);
+
+                //Determine the next question from the id given by the route, and serve a deep copy of the new questions
                 for (var i = 0; i < $scope.questionBank.length; i++) 
                     if ($scope.questionBank[i].id == route)
-                        $scope.question = JSON.parse(JSON.stringify($scope.questionBank[i])); //Deep copy the new question
+                        $scope.question = JSON.parse(JSON.stringify($scope.questionBank[i]));
             } else {
+                //If determined route is the same, advance to the next bit of progress
                 $scope.question = progress[index];
             }
         }
 
-        //Change the question and the buttons appropriately
         $scope.toggleButtons();
     }
 
     $scope.finishSurvey = function() {
         UIkit.modal('#questionnaireModal').hide();
-        if ($scope.activeStudentFocus != 2)
-            $scope.getNextSelected();
         $scope.finishedSurvey = true;
         $scope.saveProgress();
     }
 
     $scope.closeSurvey = function() {
         progress[index] = $scope.$$ChildScope.prototype.question;
-        if ($scope.activeStudentFocus != 2)
-            $scope.getNextSelected();
         $scope.saveProgress();
     }
 
     $scope.saveProgress = function() {
-        var data = {
-            'questionnaireId':  $scope.questionnaireId,
-            'progress': progress,
-            'progressIndex': index,
-            'isCompleted': $scope.finishedSurvey
-        };
-
+        //Save the current progress to the list of allProgress for the client side to keep updated
         var exists = false;
 
-        //Save the current progress to the list of all progress
+        //Check if it exists in the list of allProgresses, and if so update it
         for (j = 0; j < $scope.allProgress.length; j++) {
             if ($scope.allProgress[j].questionnaireId == $scope.questionnaireId) {
                 $scope.allProgress[j].progress = progress;
@@ -250,11 +205,18 @@ app.controller("dashboardCtrl", function($scope, $http) {
             }
         }
 
+        //Send the current data to keep the server side updated
+        var data = {
+            'questionnaireId':  $scope.questionnaireId,
+            'progress': progress,
+            'progressIndex': index,
+            'isCompleted': $scope.finishedSurvey
+        };
+
+        //If the current progrees is not in the list off allProgress, add it with the new data object
         if (!exists) {
             $scope.allProgress.push(data);
         }
-
-        console.log($scope.allProgress);
 
         $http.post('/dashboard/saveProgress', data).then(function(res) {
         },function(error){
@@ -306,21 +268,26 @@ app.controller("dashboardCtrl", function($scope, $http) {
                 $scope.activeStudentFocus = 2;
         }
 
-        //Questionnaire data
+        //Store all questionnaire data
         $scope.questionnaires = res.data.questionnaires;
         $scope.allQuestions = res.data.questions;
         $scope.allProgress = res.data.progress;
 
         if ($scope.focus) {
+            //Find the questionnaire to show based on the currently selected assignment if present
             for (var i = 0; i < $scope.questionnaires.length; i++) {
                 if ($scope.focus.assignmentId == $scope.questionnaires[i].assignmentId) {
                     $scope.questionnaireId = $scope.questionnaires[i].id;
                     $scope.questionnaireTitle = $scope.questionnaires[i].name;
+
+                    //Find the question bank to pull new questions from based on the current questionnaire
                     for (j = 0; j < $scope.allQuestions.length; j++) {
                         if ($scope.allQuestions[j][0].questionnaireId == $scope.questionnaireId) {
                             $scope.questionBank = $scope.allQuestions[j];
                         }
                     }
+
+                    //Find the progress (if applicable) connected to the current questionnaire
                     for (j = 0; j < $scope.allProgress.length; j++) {
                         if ($scope.allProgress[j].questionnaireId == $scope.questionnaireId) {
                             progress = $scope.allProgress[j].progress;
@@ -332,16 +299,16 @@ app.controller("dashboardCtrl", function($scope, $http) {
             }
 
             if (!$scope.finishedSurvey) {
+                //Retrieve the question to be displayed, either from progress or from a deep copy from the question brank
                 if (progress.length > 0) {
                     $scope.question = progress[index];
                 } else {
-                    $scope.question = JSON.parse(JSON.stringify($scope.questionBank[0])); //Get based on progress
+                    $scope.question = JSON.parse(JSON.stringify($scope.questionBank[0]));
                     progress.push($scope.$$ChildScope.prototype.question);
                 }
 
                 $scope.toggleButtons();  
             }     
         }
-        console.log(res.data);
     });
 });

@@ -345,83 +345,68 @@ module.exports = function (app, iosocket )
      * @return {[type]}      [description]
      */
     app.get('/dashboard/data', function(req,res) {
-        console.log('accessing dashboard data');
         collectDashboardData(req,res, function(req,res,data) {
-            //Get questionnaire data
+            //Begin getting questionnaire data, grabbing all questionnaires that correspond to the user's assignment list
             var q = `SELECT assignmentId, id, name FROM questionnaire WHERE assignmentId IN ${'('+data.assignments.map(a => a.assignmentId).join()+')'}`;
             db.query(q, [], function(err, questionnaires){
-                console.log('Query 1 succeeded');
                 if(err) {
                     Logger.error(err);
                     res.json(data);
                     return;
                 }
 
+                //Store the questionnaires in the data to be sent, and create a list of questionnaire ids
                 data.questionnaires = questionnaires;
+                var idList = questionnaires.map(a => a.id);
 
-                //Get question data based on the selected questionnaire
-                q = `SELECT * FROM questionnaire_questions WHERE questionnaireId IN ${'('+questionnaires.map(a => a.id).join()+')'}`;
-                console.log('Entering Query 2');
-                console.log(q);
+                //Get all questions from all of the previously retrieved questionnaires list
+                q = `SELECT * FROM questionnaire_questions WHERE questionnaireId IN ${'('+idList.join()+')'}`;
                 db.query(q, [], function(err, questionData){
-                    console.log('Query 2 succeeded');
                     if(err) {
                         Logger.error(err);
                         res.json(data);
                         return;
                     }
 
-                    var idList = questionnaires.map(a => a.id);
+                    //Declare the array to be sent to the client, and parse all json text
                     var allQuestions = [];
-
                     for (var i = 0; i < questionData.length; i++)
                         questionData[i].fields = JSON.parse(questionData[i].fields);
 
+                    //Loop through all questionaires to build an array of question arrays pertaining to each question
                     for (var i = 0; i < idList.length; i++) {
+                        //Create a new array pertaining to the current questionnaire and store all related questions in it
                         allQuestions[i] = [];
                         for (var j = 0; j < questionData.length; j++) {
                             if (idList[i] == questionData[j].questionnaireId)
                                 allQuestions[i].push(questionData[j]);
                         }
 
+                        //Identify the first element in the list of questions, and then move it to the front of the array
                         var first = allQuestions[i].find(function(element) {
                             return element.isFirst == 1;
                         });
-
                         allQuestions[i].splice(allQuestions[i].indexOf(first), 1);
                         allQuestions[i].unshift(first);
                     }
 
+                    //Send the newly built array
                     data.questions = allQuestions;
 
                     //Get the users progress for the selected questionnaire
                     q = `SELECT questionnaireId, progressIndex, progress, isCompleted FROM questionnaire_progress WHERE questionnaireId IN ${'('+idList.join()+')'}`;
                     db.query(q, [], function(err, progressData) {
-                        console.log('Query 3 succeeded');
                         if(err) {
                             Logger.error(err);
                             res.json(data);
                             return;
                         }
 
+                        //Parse all items in the current progress list, and send it to the client
                         for (var i = 0; i < progressData.length; i++) {
                             progressData[i].progress = JSON.parse(progressData[i].progress);
                         }
-
                         data.progress = progressData;
-
-                        /*
-
-                        if (progressData.length > 0) {
-                            data.q.isCompleted = progressData[0].isCompleted;
-                            data.q.progressIndex = progressData[0].progressIndex;
-                            data.q.progress = JSON.parse(progressData[0].progress);
-                        } else {
-                            data.q.isCompleted = 0;
-                            data.q.progressIndex = 0;
-                            data.q.progress = [];
-                        }
-                        */
 
                         res.json(data);
                     });
@@ -445,64 +430,16 @@ module.exports = function (app, iosocket )
         req.session.save();
     });
 
-    app.post('/dashboard/getAllQuestions', function(req,res) {
-        var q = `SELECT id, name FROM questionnaire WHERE assignmentId=${req.body.assignmentId}`;
-        db.query(q, function(err, questionnaire){
+    app.post('/dashboard/saveProgress', function(req,res) {
+        //Attempt to retrieve the currently stored questionnaire_progress for the questionnaire that is being saved
+        var q = `SELECT id FROM questionnaire_progress WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId}`;   
+        db.query(q, function(err, id) {
             if(err) {
                 Logger.error(err);
                 res.end();
             }
-            q = `SELECT id, title, fields, routes, isFirst, isLast FROM questionnaire_questions WHERE questionnaireId=${questionnaire[0].id}`;
-            db.query(q, function(err, questionData){
-                q = `SELECT progressIndex, progress, isCompleted FROM questionnaire_progress WHERE questionnaireId=${questionnaire[0].id}`;
-                db.query(q, function(err, progressData) {
-                    if(err) {
-                        Logger.error(err);
-                        res.end();
-                    }
-
-                    var first = questionData.find(function(element) {
-                        return element.isFirst == 1;
-                    });
-
-                    if (!first) res.end();
-
-                    questionData.splice(questionData.indexOf(first), 1);
-                    questionData.unshift(first);
-
-                    for (var i = 0; i < questionData.length; i++) {
-                        questionData[i].fields = JSON.parse(questionData[i].fields);
-                    }
-
-                    if (progressData.length > 0) {
-                        res.json({
-                            name: questionnaire[0].name,
-                            id: questionnaire[0].id,
-                            isCompleted: progressData[0].isCompleted,
-                            progressIndex: progressData[0].progressIndex,
-                            progress: JSON.parse(progressData[0].progress),
-                            questions: questionData
-                        });
-                    } else {
-                        res.json({
-                            name: questionnaire[0].name,
-                            id: questionnaire[0].id,
-                            isCompleted: 0,
-                            progressIndex: 0,
-                            progress: [],
-                            questions: questionData
-                        });
-                    }
-                });
-            });
-        });
-    });
-
-    app.post('/dashboard/saveProgress', function(req,res) {
-        var q = `SELECT id FROM questionnaire_progress WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId}`;
-        
-        db.query(q, function(err, id) {
-            if (id.length == 0) {
+            if (id.length == 0) { 
+                //If the current progress could not be found, create a new entry and store the new progress
                 q = `INSERT INTO questionnaire_progress (userId, questionnaireId, progress, progressIndex, isCompleted) \
                 VALUES (${req.user.id}, ${req.body.questionnaireId}, \'${JSON.stringify(req.body.progress)}\',${req.body.progressIndex}, ${req.body.isCompleted})`;
                 db.query(q, function(err, data) {
@@ -512,6 +449,7 @@ module.exports = function (app, iosocket )
                     }
                 });
             } else {
+                //If the current progress was found, update it with the new values
                 q = `UPDATE questionnaire_progress SET isCompleted=${req.body.isCompleted}, progressIndex=${req.body.progressIndex} ,progress=\'${JSON.stringify(req.body.progress)}\' \
                 WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId}`;
                 db.query(q, function(err, data) {
