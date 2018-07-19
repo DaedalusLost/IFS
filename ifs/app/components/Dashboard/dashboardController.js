@@ -93,6 +93,37 @@ app.controller("dashboardCtrl", function($scope, $http) {
         return $scope.assignmentSelect && $scope.courseSelect;
     }
 
+    /**
+     * Ensures that all of the required fields for the current question have been completed before pressing next
+     * Loops through each required field to ensure that the user has appropriately filled their information
+     */
+    $scope.requiredComplete = function() {
+        if ($scope.$$ChildScope && $scope.$$ChildScope.prototype.question) {
+            for (let field of $scope.$$ChildScope.prototype.question.fields) {
+                if (field.required) { 
+                    if ((field.type == "radio" || field.type == "select") && field.model == field.defaultModel) {
+                        return false;
+                    } else if (field.type == "checkbox") {
+                        //Checks if any checkbox has been ticked, ever. Allows for all checkboxes to be blank.
+                        //This may be undesirable in some cases, but no such examples were thought of when writing this
+                        var flag = false;
+                        for (let option of field.options) {
+                            if (option.model === true || option.model === false) {
+                                flag = true;
+                                break;
+                            }
+                        }
+                        if (!flag) return false;
+                    } else if (field.type == "text" && field.model == "") {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     $scope.showSurvey = function() {
         //Reset the progress and associated variables before determining the new set
         progress = [];

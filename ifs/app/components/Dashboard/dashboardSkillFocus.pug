@@ -74,5 +74,5 @@ div(uk-modal="bg-close: false; esc-close: false;")#questionnaireModal
                         include dashboardInput.pug
         div.uk-modal-footer.uk-text-right
             button(ng-show="showBack" type="button" ng-click="prevQuestion()" style="margin-right: 10px").uk-button.uk-button-default Back
-            button(ng-show="showNext" type="button" ng-click="nextQuestion()").uk-button.uk-button-default Next
-            button(ng-show="showFinish" type="button" ng-click="finishSurvey()").uk-button.uk-button-primary Finish
+            button(ng-show="showNext" ng-disabled="!requiredComplete()" type="button" ng-click="nextQuestion()").uk-button.uk-button-default Next
+            button(ng-show="showFinish" ng-disabled="!requiredComplete()" type="button" ng-click="finishSurvey()").uk-button.uk-button-primary Finish
