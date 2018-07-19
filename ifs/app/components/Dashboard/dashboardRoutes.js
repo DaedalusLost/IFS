@@ -370,8 +370,10 @@ module.exports = function (app, iosocket )
 
                     //Declare the array to be sent to the client, and parse all json text
                     var allQuestions = [];
-                    for (var i = 0; i < questionData.length; i++)
+                    for (var i = 0; i < questionData.length; i++) {
                         questionData[i].fields = JSON.parse(questionData[i].fields);
+                        questionData[i].routes = JSON.parse(questionData[i].routes);
+                    }
 
                     //Loop through all questionaires to build an array of question arrays pertaining to each question
                     for (var i = 0; i < idList.length; i++) {
