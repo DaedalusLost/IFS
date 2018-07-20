@@ -38,4 +38,16 @@ The `$http.get('/dashboard/data')` call at the bottom was modified in the lower 
 The two routes in this script that makes questionnaires possible are `/dashboard/data` and `/dashboard/saveProgress`.
 
 ### /dashboard/data
+This route collects various dashboard data to send to the angular controller, including questionnaire data associated with the current user. `collectDashboardData` is untouched, however the callback is almost entirely new. The callback performs three queries in order to retrieve the questionaire data associated with the current user: 
+1. Retrieves all questionnaires that are associated with the user's assignment list
+2. Retreives all questions associated with the retrieved questionnaires
+3. Retrieves user progress for all questionnaires that they have answered that are associated with the retrieved questionnaires
+
+Some additional processing of the retrieved data is performed before being sent to the client. This processing is self-documented in the callback using comments.
+
 ### /dashboard/saveProgress
+This route saves the user's progress that they have made on the current questionnaire. This route likely needs to be reworked to save everything in `allProgress` from the client side so that it can save everything at once - preferably once the user leaves the page or something of the sort. The route performs two queries:
+1. Attempts to retrieve the user's questionnaire progress for the current questionnaire. The next query depends on this outcome.
+2. If the questionnaire progress was retrieved from the database, then it is updated with the values sent from the client. If there was no questionnaire progress retrieved, a new entry will be created for the user's current progress.
+
+# Question Formatting

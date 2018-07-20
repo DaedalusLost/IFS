@@ -23,49 +23,6 @@ var feedbackModel = require(__components + "InteractionEvents/feedbackEvents");
 var event = require(__components + "InteractionEvents/buildEvent.js" );
 var tracker = require(__components + "InteractionEvents/trackEvents.js" );
 
-let q1 = {
-    title: 'Radio buttons example:',
-    fields: [
-        {type: 'radio', model: 'radioButtons', options: [
-            {label: 'Option A', value: 'opA'},
-            {label: 'Option B', value: 'opB'},
-            {label: 'Option C', value: 'opC'}
-        ]}
-    ]
-};
-
-let q2 = {
-    title: 'Checkboxes example:',
-    fields: [
-        {type: 'checkbox', options: [
-            {label: 'Option A', model: 'opAmodel'},
-            {label: 'Option B', model: 'opBmodel'},
-            {label: 'Option C', model: 'opCmodel'}
-        ]}
-    ]
-};
-
-let q3 = {
-    title: 'Multiple inputs example:',
-    fields: [
-        {type: 'select', model: 'selectField', label: 'Select', options: [{label: 'Option A'}, {label: 'Option B'}, {label: 'Option C'}]},
-        {type: 'text', label: 'Label', placeholder: 'Placeholder', id: 'textID', model: ''}
-    ]
-};
-
-var arr = [];
-
-for (var i = 0; i < 9; i++) {
-    if (i == 0 || i == 3 || i == 6)
-        arr[i] = q1;
-    if (i == 1 || i == 4 || i == 7)
-        arr[i] = q2;
-    if (i == 2 || i == 5 || i == 8)
-        arr[i] = q3;
-}
-
-let counter = 0;
-
 module.exports = function (app, iosocket )
 {    /**
      * [focusOptions description]
@@ -381,7 +338,7 @@ module.exports = function (app, iosocket )
                     for (var i = 0; i < questionData.length; i++) {
                         questionData[i].fields = JSON.parse(questionData[i].fields);
                         questionData[i].routes = JSON.parse(questionData[i].routes);
-                        for (var j = 0; j < questionData[i].fields.length; j++) 
+                        for (var j = 0; j < questionData[i].fields.length; j++) //Add a default model to fields that have one
                             questionData[i].fields[j].defaultModel = questionData[i].fields[j].model;
                     }
 
