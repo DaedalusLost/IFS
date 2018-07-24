@@ -80,7 +80,7 @@ module.exports = function (app, iosocket )
 
                     if( statsReq[i].displayName )
                         _.set(r, "displayName", statsReq[i].displayName);
-                    
+
                     if(statsReq[i].resultPath)
                         _.set(ret, statsReq[i].resultPath, r);
                 }
@@ -380,7 +380,7 @@ module.exports = function (app, iosocket )
                         res.json(data);
                     });
                 });
-            });   
+            });
         });
     });
 
@@ -401,13 +401,13 @@ module.exports = function (app, iosocket )
 
     app.post('/dashboard/saveProgress', function(req,res) {
         //Attempt to retrieve the currently stored questionnaire_progress for the questionnaire that is being saved
-        var q = `SELECT id FROM questionnaire_progress WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId}`;   
+        var q = `SELECT id FROM questionnaire_progress WHERE userId=${req.user.id} AND questionnaireId=${req.body.questionnaireId}`;
         db.query(q, function(err, id) {
             if(err) {
                 Logger.error(err);
                 res.end();
             }
-            if (id.length == 0) { 
+            if (id.length == 0) {
                 //If the current progress could not be found, create a new entry and store the new progress
                 q = `INSERT INTO questionnaire_progress (userId, questionnaireId, progress, progressIndex, isCompleted) \
                 VALUES (${req.user.id}, ${req.body.questionnaireId}, \'${JSON.stringify(req.body.progress)}\',${req.body.progressIndex}, ${req.body.isCompleted})`;
@@ -426,7 +426,7 @@ module.exports = function (app, iosocket )
                         Logger.error(err);
                         res.end();
                     }
-                }); 
+                });
             }
             res.end();
         });
