@@ -9,7 +9,7 @@ class UserBehavior(TaskSet):
         self.login()
 
     def login(self):
-        self.client.post("/login", {"username":"gdouglas@uoguelph.ca", "password":"testing123"})
+        self.client.post("/login", {"username":"ndomenic@uoguelph.ca", "password":"password123"})
 
 
 class WebsiteUser(HttpLocust):
