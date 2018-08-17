@@ -84,10 +84,10 @@ module.exports = {
                 'dir': '/unzipped'
             };
 
-            
             var directory = filesInfo[0].destination;
             var zipDir = path.join(directory, options['dir']);
             var folderCreated = mkdirp.sync(zipDir);
+
             Errors.cl(folderCreated);
 
             if (folderCreated) {
@@ -107,7 +107,7 @@ module.exports = {
                     }];
                     return filesInfo;
                 } catch (e) {
-                    return Errors.cErr("Cannot copy provided source files.");
+                    return Errors.cErr("Cannot copy provided source files."); cf
                 }
             } else {
                 Errors.cl(zipDir);
@@ -144,6 +144,7 @@ module.exports = {
             }
 
             var fileInfo = uploadedFiles[0];
+
             var res = this.handleZipFile(fileInfo);
             if (Errors.hasErr(res)) {
                 // Could not handl zipped format.

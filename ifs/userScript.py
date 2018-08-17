@@ -5,8 +5,8 @@ import MySQLdb, sys
 class Database:
 
 	host = 'localhost'
-	user = 'nick'
-	password = 'password123'
+	user = 'USER'
+	password = 'PASSWORD'
 	db = 'IFS'
 
 	def __init__(self):
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 		for k in range(2,502):
 
 			name = "test" + str(k) + "@uoguelph.ca"
-			password = "$2a$10$yO7sPc1aOdPGcXHLq3PbDOyQK/m1FV3IV3pKrcyAPOGQByvuoF8PK"
+			password = "$2a$10$U3eUgzQF3zQtamJMcfH.uuDoSbLQuyUD1w/cWUpcmB05c3oE2.X0C"
 			opted = 1
 			# print("(%s, %s, %d)", (name, password, opted))
 
@@ -51,10 +51,10 @@ if __name__ == "__main__":
 			query = "insert into user_registration (id, userId, isRegistered, completedSetup) values (" + str(k) + ", " + str(k) + ", 1, 1);"
 			db.insert(query)
 
-			query = "insert into student (id, userId, name) values (" + str(k) + ", " + str(k) + ", \"Nick Domenichini\");"
+			query = "insert into student (id, userId, name) values (" + str(k) + ", " + str(k) + ", \"Grant Douglas\");"
 			db.insert(query)
 
-			file.write("(\"" + name + "\", \"password123\"),\n")
+			file.write("(\"" + name + "\", \"testing123\"),\n")
 		file.write("]\n")
 
 

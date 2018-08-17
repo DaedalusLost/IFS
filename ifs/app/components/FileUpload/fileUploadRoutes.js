@@ -210,13 +210,13 @@ module.exports = function (app, iosocket) {
     }
 
     app.post('/assignment', async function(req, res) {
-        
+
         var temp = req.body.course;
         var fin = 0;
 
         if(temp == "None" || temp == "")
         {
-            res.send({'assignment': fin});      
+            res.send({'assignment': fin});
         }
         else
         {
@@ -235,13 +235,13 @@ module.exports = function (app, iosocket) {
             fin = assignment[0].id;
 
             res.send({'assignment': fin});
-        }        
+        }
 
     });
 
     app.post('/tool_upload', upload.any(), function(req,res,next) {
-        
-        var assignmentID = req.body.assignId;      
+
+        var assignmentID = req.body.assignId;
 
         // saves the tools that were selected
         var user = eventDB.eventID(req);
@@ -279,7 +279,6 @@ module.exports = function (app, iosocket) {
                     return;
                 }
 
-
                 //get the tool selection and add target files
                 var userSelection = req.body;
                 userSelection['files'] = uploadedFiles;
@@ -308,7 +307,7 @@ module.exports = function (app, iosocket) {
 
                 res.writeHead(202, { 'Content-Type': 'application/json' });
 
-                
+
 
                 // Add the jobs to the queue, results are return in object passed:[], failed:[]
                 manager.makeJob(tools).then( function( jobResults ) {
@@ -334,7 +333,7 @@ module.exports = function (app, iosocket) {
                     Logger.log("Manager's progress is ", prog.progress, "%");
                 })
                 .catch( function(err){
-                    
+
                     tracker.trackEvent( iosocket, eventDB.submissionEvent(user.sessionId, user.userId, "toolError", {"msg":e}) );
                     saveUploadErrorFiles( req.user.id, user.sessionId, uploadedFiles[0].destination, function(d,e) {
                         Logger.log("Saving Tool Error upload files for user:", req.user.id);
